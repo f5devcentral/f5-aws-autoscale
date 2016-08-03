@@ -31,7 +31,7 @@ Ex.
 
 **L7 Proxy**  
 
-Example virtual service has a simple URI routing policy.  Deploys Big-IP Local Traffic Manager (LTM) images (License = Good).
+Example virtual service has a simple URI routing [policy](bigip_files/example-uri-routing-policy.txt).  Deploys Big-IP Local Traffic Manager (LTM) images (License = Good).
 
 * [**SSL-L7proxy-utility-only-immutable**] (deployments/SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
 * [**SSL-L7proxy-sandwich-utility-only-immutable**](SSL-L7proxy-sandwich-utility-only-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
@@ -50,13 +50,13 @@ Example virtual service has a simple Web Application Firewall policy. Deploys Bi
 
 **SSL** = Example virtual service terminates SSL. It imports a PKS certificate from a remote location OR uses the default crt.
 
-**utility** = Uses hourly billing licensing.
+**utility** = Big-IP instances use hourly billing licensing.
 
-**byol** = Bring Your Own License. Requires having a Big-IP registration key. Contact your friendly F5 Account team for eval keys.
+**byol** = Deployment includes a Bring Your Own License (BYOL) instance. Requires having a Big-IP registration key. Contact your friendly F5 Account team for "Eval" keys.
 
-**immutable** = Requires the configuration to be managed via the launch config. Any config changes must be entered into the launch config and relaunched.
+**immutable** = Requires the Big-IP configuration to be managed via the launch config. Any config changes must be entered into the launch config and relaunched.
 
-**clustered** = *(Coming Soon)*. Configuration managed by syncing config from an existing member. Changes can be made in traditional operational method of logging into a Big-IP GUI.   
+**clustered** = *(Coming Soon)*. The Big-IP configuration is managed by syncing the config from an existing member. Changes can be made in traditional operational method of logging into a Big-IP GUI.   
 
 For more details about each deployment, please see the README.md in each deployment type directory. 
 
@@ -78,8 +78,14 @@ deployments/SSL-L7proxy-sandwich-utility-only-immutable/README.md
 
 ### Prerequisites
 
-1) Access to Big-IP images in the Amazon region within which you are working.<br>
-- Make sure that you have accepted the EULA for ALL images used in the AWS marketplace.<br>
+1) Access to Big-IP images in the Amazon region within which you are working. Make sure that you have accepted the EULA for ALL images used in the AWS marketplace.<br>
+
+  * Sign in to your account
+  * Go to [product page](https://aws.amazon.com/marketplace/search/results/ref=srh_navgno_search_box?page=1&searchTerms=f5+big-ip) for Big-IP selected
+  * Select "Continue"
+  * Hit "Accept Software Terms"
+
+<br>
 
 *Note: If you do not Accept the EULA in the Marketplace, the cloudformation templates may appear to hang (please see events EVENTs tab for information as to why the templates did not "complete")*
 
@@ -139,7 +145,7 @@ Launch the following CFTs in the following order:
 
 This ordering is necessary because "output" values from previous templates are used as "input" parameters for later templates.  Note that "output" variables names are the same for all matching input parameters. For example, the outputs from the common.template include Vpc, Subnets, AvailabilityZones, BigipSecurityGroup, etc. so when creating later templates, you should "copy" some outputs from previous templates and "paste" them into input parameters of the next. 
 
-Although, this method may allow you to develop a deeper understanding of the autoscaled deployments, due to numerous inputs and outputs, it is more error prone.  
+Although this method may allow you to develop a deeper understanding of the autoscaled deployments, due to numerous inputs and outputs, it is more error prone.  
 
 
 ### Method 2 - deploy_stacks.py
