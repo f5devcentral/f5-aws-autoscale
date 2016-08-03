@@ -1,0 +1,168 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Deploys a Ubuntu EC2 instanace with JMeter installed",
+  "Parameters": {
+    "Vpc": {
+      "Description": "Common VPC for whole deployment",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "AZ1ExternalSubnet": {
+      "Description": "Common subnet for whole deployment",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "AvailabilityZone1": {
+      "Description": "Availability zone in which resources are being deployed",
+      "Type": "AWS::EC2::AvailabilityZone::Name"
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "InstanceType": {
+      "AllowedValues": [
+        "t1.micro",
+        "m3.medium",
+        "m3.xlarge",
+        "m2.xlarge",
+        "m3.2xlarge",
+        "c3.large",
+        "c3.xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type",
+      "Default": "t1.micro",
+      "Description": "Client EC2 instance type",
+      "Type": "String"
+    },
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+  "Mappings": {
+    "ImageRegionMap": {
+      "ap-northeast-1": {
+        "AMI": "ami-18b6aa19"
+      }, 
+      "ap-southeast-1": {
+        "AMI": "ami-bac1ebe8"
+      }, 
+      "ap-southeast-2": {
+        "AMI": "ami-b1eb9e8b"
+      }, 
+      "eu-west-1": {
+        "AMI": "ami-394ecc4e"
+      }, 
+      "sa-east-1": {
+        "AMI": "ami-53f14e4e"
+      }, 
+      "us-east-1": {
+        "AMI": "ami-4c7a3924"
+      }, 
+      "us-west-1": {
+        "AMI": "ami-56120b13"
+      }, 
+      "us-west-2": {
+        "AMI": "ami-17471c27"
+      }
+    }
+  },
+  "Resources": {
+    "ClientSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Enable SSH access via port 22",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "SSHLocation" }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          }
+        ]
+      }
+    },
+    "JMeterClientEc2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [
+            "ImageRegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "AMI"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone1"
+        },
+        "NetworkInterfaces": [
+          {
+            "DeviceIndex": "0",
+            "Description": "Network interface for Ubuntu client host",
+            "AssociatePublicIpAddress": "true",
+            "DeleteOnTermination": true,
+            "GroupSet": [
+              {
+                "Ref": "ClientSecurityGroup"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "AZ1ExternalSubnet"
+            }
+          }
+        ],
+        "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+              "#cloud-config\n",
+              "repo_update: true\n",
+              "repo_upgrade: all\n",
+              "\n",
+              "packages:\n",
+              " - jmeter\n",
+              ""
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "JMeter Client Instance"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ClientPrivateIP" : {
+      "Value" : { "Fn::GetAtt" : [ "JMeterClientEc2Instance", "PrivateIp" ] }, 
+      "Description" : "Private IP for Client"
+    },
+    "ClientPublicIP" : {
+      "Value" : { "Fn::GetAtt" : [ "JMeterClientEc2Instance", "PublicIp" ] },
+      "Description" : "Public IP for Client"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+# Instructions: 
+# Rename this file to config.yaml and update the variables. 
+# config.yaml is not tracked in git.
+
+
+# REQUIRED
+# aws/ec2 region where you want to deploy
+# ex. region: us-east-1
+region: <name of AWS region>
+
+# REQUIRED
+# arbitrary name for your deployment, must follow CFT naming conventions
+# MaxLength = 20 characters
+# ex. DeploymentName: example-1
+DeploymentName: example-1
+
+# REQUIRED
+# admin password
+# ex. BigipAdminPassword: GoF5!
+BigipAdminPassword: <admin_password>
+
+# REQUIRED
+# the name of your ssh key pair in ec2 as seen in the console, don't include the .pem
+# ex. KeyName: my-key-pair
+KeyName: <ec2 ssh key pair>
+
+# REQUIRED
+# your access credentials
+# ex. IamAccessKey: A....Q
+# ex. IamSecretKey: Os....ASJD22
+IamAccessKey: <aws access key>
+IamSecretKey: <aws secret key>
+
+# REQUIRED
+# 3 availability zones
+# AvailabilityZones: <availability zone 1>,<availability zone 2>,<availability zone 3>
+# ex. AvailabilityZones: us-east-1b,us-east-1c,us-east-1d
+AvailabilityZones: <availabilty zones>
+
+# OPTIONAL: Defaults to 8443
+# Big-IP Management Gui Port
+# ex. BigipManagementGuiPort: "8443"
+BigipManagementGuiPort: "8443"
+
+# OPTIONAL (Only for deployments w/ BYOL)
+# license key for your byol bigip
+# ex. BigipLicenseKey: CPOIB-VGPHS-BCGGD-JXBYE-XWKWMUO
+BigipLicenseKey: <license key>
+
+# OPTIONAL (in "SSL-" based deployments)
+# pfx ssl certificate URL 
+# Otherwise, the system default cert will be used
+# CertificateUrl: https://s3.amazonaws.com/yourbucket/website.pfx
+CertificateUrl: default
+
+# OPTIONAL (in some sandwich deployments)
+# ssl certificate id used if ELB terminating SSL
+# ex. CertificateId: arn:aws:iam::111111111111:server-certificate/f5example-cert
+CertificateId: <certificate id>
+
+# OPTIONAL (Default is for testing. Recommended Adjust to Uitlity Size)
+# Scale Up Bytes Threshold
+# ex. ScaleUpBytesThreshold: "35000"
+ScaleUpBytesThreshold: "35000"
+
+# OPTIONAL (Default  is for testing. Recommended Adjust to Uitlity Size)
+# Scale Down Bytes Threshold
+# ex. ScaleDownBytesThreshold: "35000"
+ScaleDownBytesThreshold: "10000"
+
+# OPTIONAL (but highly recommended) 
+# email for autoscaling events
+NotificationEmail: user@example.com
+
+# OPTIONAL 
+# 'true' if you want to deploy a host with jmeter installed for testing, else 'false'
+deploy_jmeter_host: true

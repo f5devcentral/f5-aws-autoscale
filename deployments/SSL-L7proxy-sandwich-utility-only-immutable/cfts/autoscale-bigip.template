@@ -1,0 +1,801 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "This template deploys an autoscaling group for utility instances BIG-IP. Example scaling policies and CloudWatch alarms are associated with the autoscaling group.",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "DEPLOYMENT"
+          },
+          "Parameters": [
+            "DeploymentName"
+          ]
+        },
+        {
+          "Label": {
+            "default": "NETWORKING CONFIGURATION"
+          },
+          "Parameters": [
+            "Vpc",
+            "AvailabilityZones",
+            "Subnets",
+            "BigipSecurityGroup",
+            "BigipElasticLoadBalancer"
+          ]
+        },
+        {
+          "Label": {
+              "default": "INSTANCE CONFIGURATION"
+            },
+          "Parameters": [
+            "KeyName",
+            "SSHLocation",
+            "BigipInstanceType",
+            "BigipPerformanceType",
+            "BigipThroughput",            
+            "BigipAdminPassword",
+            "IamAccessKey",
+            "IamSecretKey",
+            "BigipManagementGuiPort",
+            "Timezone",
+            "NTPServers"
+          ]
+        },
+        {
+          "Label": {
+            "default": "AUTO SCALING CONFIGURATION"
+          },
+          "Parameters": [
+            "ScalingMinSize",
+            "ScalingMaxSize",
+            "ScaleDownBytesThreshold",
+            "ScaleUpBytesThreshold",
+            "NotificationEmail"
+          ]
+        },
+        {
+          "Label": {
+            "default": "WAF VIRTUAL SERVICE CONFIGURATION"
+          },
+          "Parameters": [
+            "CertificateUrl",
+            "VirtualServicePort",
+            "AppPoolMemberPort",
+            "AppInternalELBDnsName"
+
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "DeploymentName" : {
+          "default": "Deployment Name - used for creating objects"
+        },
+        "Vpc": {
+          "default": "VPC Id"
+        },
+        "AvailabilityZones": {
+          "default": "Availability Zone(s)"
+        },
+        "Subnets": {
+          "default": "Subnet Id(s)"
+        },
+        "BigipSecurityGroup": {
+          "default": "Security Group for Big-IPs"
+        },
+        "BigipElasticLoadBalancer": {
+          "default": "Elastic Load Balancer for Big-IPs"
+        },
+        "BigipInstanceType": {
+          "default": "Big-IP Instance Type"
+        },
+        "BigipManagementGuiPort": {
+          "default": "Big-IP GUI Port"
+        },
+        "Timezone":{
+          "default": "Timezone (Olson)"
+        },
+        "NTPServers":{
+          "default": "NTP Servers - space seperated"
+        },
+        "ScalingMinSize": {
+          "default": "Minimum Instances"
+        },
+        "ScalingMaxSize": {
+          "default": "Maximum Instances"
+        },
+        "ScaleDownBytesThreshold": {
+          "default": "Scale Down Bytes Threshold"
+        },
+        "ScaleUpBytesThreshold": {
+          "default": "Scale Up Bytes Threshold"
+        },
+        "NotificationEmail": {
+          "default": "Notification Email"
+        },
+        "CertificateUrl": {
+          "default": "URL containing SSL Certificate"
+        },
+        "VirtualServicePort": {
+          "default": "Virtual Service Port"
+        },
+        "AppPoolMemberPort": {
+          "default": "Application Pool Member Port"
+        },
+        "AppInternalELBDnsName": {
+          "default": "Elastic Load Balancer for Apps"
+        }
+
+      }
+    }
+  },
+  "Parameters": {
+    "DeploymentName" : {
+      "Description" : "Deployment Name - Used in creating objects",
+      "Type" : "String",
+      "MaxLength": 20,
+      "Default": "my_demo"
+    },
+    "Vpc": {
+      "Description": "Common VPC for whole deployment",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "AvailabilityZones": {
+      "Description": "Availability zones in which Bigip is being deployed",
+      "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+    },
+    "Subnets": {
+      "Description": "AZ1 Public or External Subnet IDs",
+      "Type": "List<AWS::EC2::Subnet::Id>"
+    },
+    "BigipSecurityGroup": {
+      "Description": "Pre-existing security group for BIG-IP",
+      "Type": "AWS::EC2::SecurityGroup::Id"
+    },
+    "BigipElasticLoadBalancer": {
+      "Description": "Elastic Load Balancer group for all BIG-IPs",
+      "Type": "String",
+      "Default": "BigipElasticLoadBalancer"
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "BigipInstanceType": {
+      "Description": "F5 BIG-IP Instance Type",
+      "Type": "String",
+      "Default": "t2.medium",
+      "AllowedValues": [
+        "t2.medium",
+        "t2.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge"
+      ],
+      "ConstraintDescription": "must be a valid Big-IP virtual EC2 instance type."
+    },
+    "BigipPerformanceType": {
+      "Description": "F5 Bigip Performance Type",
+      "Type": "String",
+      "Default": "Good",
+      "AllowedValues": [
+        "Good",
+        "Better",
+        "Best"
+      ],
+      "ConstraintDescription": "Must be a valid F5 Big-IP performance type"
+    },
+    "BigipThroughput": {
+      "Description": "F5 Bigip Throughput",
+      "Type": "String",
+      "Default": "25-Mbps",
+      "AllowedValues": [
+        "25-Mbps",
+        "200-Mbps",
+        "1000-Mbps"
+      ],
+      "ConstraintDescription": "Please select your desired throughput"
+    },
+    "BigipAdminPassword": {
+        "ConstraintDescription": "Please verify your BIG-IP Admin Password",
+        "Description": "Please enter your BIG-IP Admin Password",
+        "MaxLength": "255",
+        "MinLength": "1",
+        "NoEcho": true,
+        "Type": "String"
+    },
+    "IamSecretKey": {
+      "Description": "IAM Secret Key",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "255",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "NoEcho": "True",
+      "ConstraintDescription": "can contain only ASCII characters."
+    },
+    "IamAccessKey": {
+      "Description": "IAM Access Key",
+      "Type": "String",
+      "MinLength": "16",
+      "MaxLength": "32",
+      "AllowedPattern": "[\\w]*",
+      "NoEcho": "True",
+      "ConstraintDescription": "can contain only ASCII characters."
+    },
+    "BigipManagementGuiPort": {
+      "Description": "Port to use for the managment GUI",
+      "Type": "Number",
+      "Default": 8443,
+      "ConstraintDescription": "Must be a valid, unusued port on BIG-IP."
+    },
+    "Timezone": {
+      "Description": "Enter a Olson timezone string from /usr/share/zoneinfo",
+      "Default": "UTC",
+      "Type": "String"
+    },
+    "NTPServers": {
+      "Description": "Enter a space list of NTP servers. ex. 0.pool.ntp.org 1.pool.ntp.org",
+      "Default": "0.pool.ntp.org 1.pool.ntp.org",
+      "Type": "String"
+    },
+    "CertificateUrl": {
+      "Description": "Enter url containing pfx ssl certificate used for application - ex. https://s3.amazonaws.com/f5example/website.pfx",
+      "Default": "default",
+      "Type": "String"      
+    },
+    "VirtualServicePort": {
+      "Description": "The port for the Virtual Service on the Big-IP",
+      "Default": "443",
+      "ConstraintDescription": "Must be a valid port number (1-65535).",
+      "Type": "Number",
+      "MaxValue": "65535",
+      "MinValue": "1"
+    },
+    "AppPoolMemberPort": {
+      "Description": "The Pool Member Port",
+      "Default": "80",
+      "ConstraintDescription": "Must be a valid port number (1-65535).",
+      "Type": "Number",
+      "MaxValue": "65535",
+      "MinValue": "1"
+    },
+    "AppInternalELBDnsName": {
+      "Description": "DNS of the ELB used for the application",
+      "Type": "String",
+      "Default": "XXXXXXX.region.elb.amazonaws.com"
+    },
+    "ScalingMinSize": {
+      "Description": "Enter the minimum number of BIG-IP instances (1-8) to be available in the AutoScale Group",
+      "Default": "1",
+      "ConstraintDescription": "Must be a number between 1-8",
+      "Type": "Number",
+      "MaxValue": "8",
+      "MinValue": "1"
+    },
+    "ScalingMaxSize": {
+      "Description": "Enter the maximum number of BIG-IP instances (2-8) that can be created in the AutoScale Group",
+      "Default": "3",
+      "ConstraintDescription": "Must be a number between 2-8.",
+      "Type": "Number",
+      "MaxValue": "8",
+      "MinValue": "2"
+    },
+    "ScaleUpBytesThreshold": {
+      "Description": "Enter bytes to begin Scaling Up",
+      "Default": "35000",
+      "Type": "Number"
+    },
+    "ScaleDownBytesThreshold": {
+      "Description": "Enter bytes to begin Scaling Down",
+      "Default": "10000",
+      "Type": "Number"
+    },
+    "NotificationEmail": {
+      "Description": "Enter a valid email address to send AutoSclaing Event Notifications",
+      "ConstraintDescription": "Must be a valid email address.",
+      "Type": "String"
+    }
+  },
+  "Mappings": {
+    "BigipRegionMap": {
+      "ap-northeast-1": {
+        "Best1000": "ami-e15eac80", 
+        "Best200": "ami-5f5daf3e", 
+        "Best25": "ami-f25daf93", 
+        "Better1000": "ami-e25eac83", 
+        "Better200": "ami-f05eac91", 
+        "Better25": "ami-815ba9e0", 
+        "Good1000": "ami-8d58aaec", 
+        "Good200": "ami-165cae77", 
+        "Good25": "ami-d95fadb8"
+      }, 
+      "ap-southeast-1": {
+        "Best1000": "ami-1416cb77", 
+        "Best200": "ami-1516cb76", 
+        "Best25": "ami-f911cc9a", 
+        "Better1000": "ami-fa11cc99", 
+        "Better200": "ami-4c10cd2f", 
+        "Better25": "ami-8a16cbe9", 
+        "Good1000": "ami-5b10cd38", 
+        "Good200": "ami-8b16cbe8", 
+        "Good25": "ami-1316cb70"
+      }, 
+      "ap-southeast-2": {
+        "Best1000": "ami-d9daf1ba", 
+        "Best200": "ami-abd8f3c8", 
+        "Best25": "ami-97daf1f4", 
+        "Better1000": "ami-c5daf1a6", 
+        "Better200": "ami-1adbf079", 
+        "Better25": "ami-1bdbf078", 
+        "Good1000": "ami-18dbf07b", 
+        "Good200": "ami-08d9f26b", 
+        "Good25": "ami-89d9f2ea"
+      }, 
+      "eu-west-1": {
+        "Best1000": "ami-873552f4", 
+        "Best200": "ami-813552f2", 
+        "Best25": "ami-082a4d7b", 
+        "Better1000": "ami-963651e5", 
+        "Better200": "ami-3e37504d", 
+        "Better25": "ami-b32a4dc0", 
+        "Good1000": "ami-ff35528c", 
+        "Good200": "ami-9b2047e8", 
+        "Good25": "ami-a7294ed4"
+      }, 
+      "sa-east-1": {
+        "Best1000": "ami-dcfc68b0", 
+        "Best200": "ami-4bfd6927", 
+        "Best25": "ami-24fe6a48", 
+        "Better1000": "ami-c5fe6aa9", 
+        "Better200": "ami-69f36705", 
+        "Better25": "ami-e8f16584", 
+        "Good1000": "ami-7eff6b12", 
+        "Good200": "ami-c8fe6aa4", 
+        "Good25": "ami-cbfe6aa7"
+      }, 
+      "us-east-1": {
+        "Best1000": "ami-c9ac2bde", 
+        "Best200": "ami-93ac2b84", 
+        "Best25": "ami-3aab2c2d", 
+        "Better1000": "ami-69a92e7e", 
+        "Better200": "ami-c4ab2cd3", 
+        "Better25": "ami-7aa92e6d", 
+        "Good1000": "ami-a4ac2bb3", 
+        "Good200": "ami-38ad2a2f", 
+        "Good25": "ami-69aa2d7e"
+      }, 
+      "us-west-1": {
+        "Best1000": "ami-8f0244ef", 
+        "Best200": "ami-b40345d4", 
+        "Best25": "ami-01024461", 
+        "Better1000": "ami-00024460", 
+        "Better200": "ami-d10345b1", 
+        "Better25": "ami-d30345b3", 
+        "Good1000": "ami-47024427", 
+        "Good200": "ami-b00345d0", 
+        "Good25": "ami-8b0244eb"
+      }, 
+      "us-west-2": {
+        "Best1000": "ami-f12eee91", 
+        "Best200": "ami-d333f3b3", 
+        "Best25": "ami-f62eee96", 
+        "Better1000": "ami-a92fefc9", 
+        "Better200": "ami-ba31f1da", 
+        "Better25": "ami-6f33f30f", 
+        "Good1000": "ami-c333f3a3", 
+        "Good200": "ami-f92fef99", 
+        "Good25": "ami-c033f3a0"
+      }
+    },
+    "AWSBigipThrougput": {
+      "25-Mbps": {
+        "Good": "Good25",
+        "Better": "Better25",
+        "Best": "Best25"
+      },
+      "200-Mbps": {
+        "Good": "Good200",
+        "Better": "Better200",
+        "Best": "Best200"
+      },
+      "1000-Mbps": {
+        "Good": "Good1000",
+        "Better": "Better1000",
+        "Best": "Best1000"
+      }
+    }
+  },
+  "Resources": {
+    "SNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "Subscription": [
+          {
+            "Endpoint": {
+              "Ref": "NotificationEmail"
+            },
+            "Protocol": "email"
+          }
+        ]
+      }
+    },
+    "BigipLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/root/firstrun.config": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "#!/bin/bash\n",
+                      "HOSTNAME=`curl http://169.254.169.254/latest/meta-data/hostname`\n",
+                      "TZ='",
+                      {
+                        "Ref": "Timezone"
+                      },
+                      "'\n",
+                      "NTPSERVERS='",
+                      {
+                        "Ref": "NTPServers"
+                      },
+                      "'\n",
+                      "APP_NAME='",
+                      {
+                        "Ref": "DeploymentName"
+                      },
+                      "'\n",
+                      "CERTIFICATE_URL='",
+                      {
+                        "Ref": "CertificateUrl"
+                      },
+                      "'\n",
+                      "POOL_DNS='",
+                      {
+                        "Ref": "AppInternalELBDnsName"
+                      },
+                      "'\n",
+                      "POOL_MEMBER_PORT='",
+                      {
+                        "Ref": "AppPoolMemberPort"
+                      },
+                      "'\n",
+                      "VS_PORT='",
+                      {
+                        "Ref": "VirtualServicePort"
+                      },
+                      "'\n",
+                      "CRT='default.crt'\n",
+                      "KEY='default.key'\n",
+                      "IAM_ACCESS_KEY='",
+                      {
+                        "Ref": "IamAccessKey"
+                      },
+                      "'\n",
+                      "IAM_SECRET_KEY='",
+                      {
+                        "Ref": "IamSecretKey"
+                      },
+                      "'\n",
+                      "ADMIN_PASSWORD='",
+                      {
+                          "Ref": "BigipAdminPassword"
+                      },
+                      "'\n",
+                      "MANAGEMENT_GUI_PORT='",
+                      {
+                        "Ref": "BigipManagementGuiPort"
+                      },
+                      "'\n",
+                      "GATEWAY_MAC=`ifconfig eth0 | egrep HWaddr | awk '{print tolower($5)}'`\n",
+                      "GATEWAY_CIDR_BLOCK=`curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${GATEWAY_MAC}/subnet-ipv4-cidr-block`\n",
+                      "GATEWAY_NET=${GATEWAY_CIDR_BLOCK%/*}\n",
+                      "GATEWAY_PREFIX=${GATEWAY_CIDR_BLOCK#*/}\n",
+                      "GATEWAY=`echo ${GATEWAY_NET} | awk -F. '{ print $1\".\"$2\".\"$3\".\"$4+1 }'`\n",
+                      "VPC_CIDR_BLOCK=`curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${GATEWAY_MAC}/vpc-ipv4-cidr-block`\n",
+                      "VPC_NET=${VPC_CIDR_BLOCK%/*}\n",
+                      "VPC_PREFIX=${VPC_CIDR_BLOCK#*/}\n",
+                      "NAME_SERVER=`echo ${VPC_NET} | awk -F. '{ print $1\".\"$2\".\"$3\".\"$4+2 }'`\n",
+                      "export AWS_AUTO_SCALING_HOME=/opt/aws/autoscaling-1.0.61.6\n",
+                      "export JAVA_HOME=/usr/lib/jvm/jre-1.7.0\n"
+                    ]
+                  ]
+                }
+              },
+              "/root/firstrun.utils":{
+                "source":"http://cdn.f5.com/product/templates/utils/firstrun.utils",
+                "mode": "000755",
+                "owner": "root",
+                "group": "root"
+              },
+              "/root/aws_download_file.py":{
+                "source":"http://cdn.f5.com/product/templates/utils/aws_download_file.py",
+                "mode": "000755",
+                "owner": "root",
+                "group": "root"
+              },
+              "/root/firstrun.sh": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "#!/bin/bash\n",
+                      ". /root/firstrun.config\n",
+                      ". /root/firstrun.utils\n",
+                      "FILE=/tmp/firstrun.log\n",
+                      "if [ ! -e $FILE ]\n",
+                      " then\n",
+                      "     touch $FILE\n",
+                      "     nohup $0 0<&- &>/dev/null &\n",
+                      "     exit\n",
+                      "fi\n",
+                      "exec 1<&-\n",
+                      "exec 2<&-\n",
+                      "exec 1<>$FILE\n",
+                      "exec 2>&1\n",
+                      "date\n",
+                      "checkF5Ready\n",
+                      "sleep 20\n",
+                      "tmsh modify sys ntp timezone ${TZ}\n",
+                      "tmsh modify sys ntp servers add { ${NTPSERVERS} }\n",
+                      "tmsh modify sys dns name-servers add { ${NAME_SERVER} }\n",
+                      "tmsh modify sys global-settings hostname ${HOSTNAME}\n",
+                      "tmsh modify sys global-settings gui-setup disabled\n",
+                      "tmsh modify sys global-settings aws-access-key ${IAM_ACCESS_KEY}\n",
+                      "tmsh modify sys global-settings aws-secret-key ${IAM_SECRET_KEY}\n",
+                      "tmsh modify sys httpd ssl-port ${MANAGEMENT_GUI_PORT}\n",
+                      "tmsh modify net self-allow defaults add { tcp:${MANAGEMENT_GUI_PORT} }\n",
+                      "if [[ \"${MANAGEMENT_GUI_PORT}\" != \"443\" ]]; then tmsh modify net self-allow defaults delete { tcp:443 }; fi \n",
+                      "MGMT_ADDR=$(tmsh list sys management-ip | awk '/management-ip/ {print $3}')\n",
+                      "MGMT_IP=${MGMT_ADDR%/*}\n",
+                      "tmsh mv cm device bigip1 ${HOSTNAME}\n",
+                      "tmsh save /sys config\n",
+                      "tmsh modify auth user admin password \"'${ADMIN_PASSWORD}'\"\n",
+                      "tmsh save /sys config\n",
+                      "networkUp 120 '-I https://aws.amazon.com'\n",
+                      "BIGIP_ASG_NAME=`/opt/aws/autoscaling-1.0.61.6/bin/as-describe-auto-scaling-groups -I ${IAM_ACCESS_KEY} -S ${IAM_SECRET_KEY} BigipAutoscaleGroup | grep \"AUTO-SCALING-GROUP.*",
+                      {"Ref" : "DeploymentName"},
+                      ".*BigipAutoscaleGroup\" | cut -d' ' -f3` \n",
+                      "tmsh modify sys autoscale-group autoscale-group-id ${BIGIP_ASG_NAME} \n",
+                      "tmsh load sys config merge file /usr/share/aws/metrics/aws-cloudwatch-icall-metrics-config \n",
+                      "if [[ \"${CERTIFICATE_URL}\" != \"default\" ]]; then\n",
+                      "    python /root/aws_download_file.py --aws_access_key ${IAM_ACCESS_KEY} --aws_secret_key ${IAM_SECRET_KEY} -d '/config/ssl/ssl.key' ${CERTIFICATE_URL}\n",
+                      "    tmsh install sys crypto pkcs12 site.example.com from-local-file /config/ssl/ssl.key/${CERTIFICATE_URL##*/}\n",
+                      "    tmsh create ltm profile client-ssl example-clientssl-profile cert site.example.com.crt key site.example.com.key\n",
+                      "else\n",
+                      "    tmsh create ltm profile client-ssl example-clientssl-profile cert default.crt key default.key\n",
+                      "fi\n",
+                      "tmsh create ltm node ${APP_NAME} fqdn { name ${POOL_DNS} }\n",
+                      "tmsh create ltm pool ${APP_NAME}_pool members add { ${APP_NAME}:${POOL_MEMBER_PORT} } monitor http\n",
+                      "tmsh create ltm policy uri-routing-policy controls add { forwarding } requires add { http } strategy first-match legacy\n",
+                      "tmsh modify ltm policy uri-routing-policy rules add { service1.example.com { conditions add { 0 { http-uri host values { service1.example.com } } } actions add { 0 { forward select pool ${APP_NAME}_pool } } ordinal 1 } }\n",
+                      "tmsh modify ltm policy uri-routing-policy rules add { service2.example.com { conditions add { 0 { http-uri host values { service2.example.com } } } actions add { 0 { forward select pool ${APP_NAME}_pool } } ordinal 2 } }\n",
+                      "tmsh modify ltm policy uri-routing-policy rules add { apiv2 { conditions add { 0 { http-uri path starts-with values { /apiv2 } } } actions add { 0 { forward select pool ${APP_NAME}_pool } } ordinal 3 } }\n",
+                      "tmsh create ltm virtual ${APP_NAME}_vs_${VS_PORT} { destination 0.0.0.0:${VS_PORT} mask any ip-protocol tcp pool ${APP_NAME}_pool policies replace-all-with { uri-routing-policy { } } profiles replace-all-with { tcp { } http { } example-clientssl-profile { context clientside } } source 0.0.0.0/0 source-address-translation { type automap } translate-address enabled translate-port enabled}\n",
+                      "tmsh save /sys config\n",
+                      "date\n",
+                      "echo 'firstrun complete'\n"
+                    ]
+                  ]
+                },
+                "mode": "000755",
+                "owner": "root",
+                "group": "root"
+              }
+            },
+            "commands": {
+              "b-configure-BigIP": {
+                "command": "/root/firstrun.sh\n"
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "ImageId": {
+          "Fn::FindInMap": [
+            "BigipRegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSBigipThrougput",
+                {
+                  "Ref": "BigipThroughput"
+                },
+                {
+                  "Ref": "BigipPerformanceType"
+                }
+              ]
+            }
+          ]
+        },
+        "InstanceType": {
+          "Ref": "BigipInstanceType"
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "BigipSecurityGroup"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -x\n",
+                "/opt/aws/apitools/cfn-init-1.4-0.amzn1/bin/cfn-init -v -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -r BigipLaunchConfig",
+                " --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "BigipAutoscaleGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "VPCZoneIdentifier": { "Ref": "Subnets" },
+        "Cooldown": "1500",
+        "LoadBalancerNames": [
+          {
+            "Ref": "BigipElasticLoadBalancer"
+          }
+        ],
+        "HealthCheckGracePeriod": 1200,
+        "HealthCheckType": "ELB",
+        "LaunchConfigurationName": {
+          "Ref": "BigipLaunchConfig"
+        },
+        "MaxSize": {
+          "Ref": "ScalingMaxSize"
+        },
+        "MinSize": {
+          "Ref": "ScalingMinSize"
+        },
+        "DesiredCapacity" : "1",
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute"
+          }
+        ],
+        "NotificationConfigurations": [
+          {
+            "TopicARN": {
+              "Ref": "SNSTopic"
+            },
+            "NotificationTypes": [
+              "autoscaling:EC2_INSTANCE_LAUNCH",
+              "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+              "autoscaling:EC2_INSTANCE_TERMINATE",
+              "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "BIG-IP Autoscale Instance",
+            "PropagateAtLaunch": true
+          },
+          {
+            "Key": "Application",
+            "Value": "AWS::StackId",
+            "PropagateAtLaunch": true
+          }
+        ]
+      }
+    },
+    "BigipScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "BigipAutoscaleGroup"
+        },
+        "Cooldown": "1500",
+        "ScalingAdjustment": "1"
+      }
+    },
+    "BigipScaleDownPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "BigipAutoscaleGroup"
+        },
+        "Cooldown": "1500",
+        "ScalingAdjustment": "-1"
+      }
+    },
+    "BigipHighbytesAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "DependsOn": "BigipAutoscaleGroup",
+      "Properties": {
+        "ActionsEnabled": "True",
+        "AlarmActions": [
+          {
+            "Ref": "BigipScaleUpPolicy"
+          }
+        ],
+        "AlarmDescription": "Server side network out exceeds average threshold",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": "1",
+        "MetricName": "server_side_traffic.bytes_in-per-sec",
+        "Namespace": {
+          "Ref": "BigipAutoscaleGroup"
+        },
+        "Period": "60",
+        "Statistic": "Average",
+        "Threshold": {
+          "Ref": "ScaleUpBytesThreshold"
+        }
+      }
+    },
+    "BigipLowbytesAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "DependsOn": "BigipAutoscaleGroup",
+      "Properties": {
+        "ActionsEnabled": "True",
+        "AlarmActions": [
+          {
+            "Ref": "BigipScaleDownPolicy"
+          }
+        ],
+        "AlarmDescription": "Server side network out below average threshold",
+        "ComparisonOperator": "LessThanThreshold",
+        "EvaluationPeriods": "5",
+        "MetricName": "server_side_traffic.bytes_in-per-sec",
+        "Namespace": {
+          "Ref": "BigipAutoscaleGroup"
+        },
+        "Period": "60",
+        "Statistic": "Average",
+        "Threshold": {
+          "Ref": "ScaleDownBytesThreshold"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "BigipAutoscaleGroup": {
+      "Value": {
+        "Ref": "BigipAutoscaleGroup"
+      }
+    }
+  }
+}
