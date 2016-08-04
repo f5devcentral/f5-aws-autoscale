@@ -24,7 +24,7 @@ Each of the other templates should only be deployed once for a given application
 ### BIG-IP deployment and configuration
 
 * All BIG-IPs are deployed with a single interface attached to a public subnet.
-* Advanced traffic management functionality is provided through use of BIG-IP Local Traffic Manager (LTM). We use the Good 25Mbs image available in the AWS marketplace to license these modules.
+* Advanced traffic management functionality is provided through use of BIG-IP Local Traffic Manager (LTM) and Application Security Manager (ASM). We use the Best 25Mbs image available in the AWS marketplace to license these modules.
 * All BIG-IP configuration is performed at device bootup using CloudInit.  This can be seen in autoscale-bigip.template template. In general, CloudInit is used to :
   * set BIG-IP hostname, NTP, and DNS settings
   * add aws-access-key and aws-secret-key to BIG-IP, allowing BIG-IP to make authenticated calls to AWS HTTPS endpoints.   

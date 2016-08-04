@@ -270,7 +270,8 @@ output_list = ['BigipAutoscaleGroup']
 if "sandwich" in deployment_type:
     output_list.append('BigipELBDnsName')
 if "byol" in deployment_type:
-    output_list.append('ByolBigipInstance','ByolBigipPublicIp')
+    output_list.append('ByolBigipInstance')
+    output_list.append('ByolBigipPublicIp')
 if deploy_jmeter_host:
     output_list.append('ClientPublicIP')
 
