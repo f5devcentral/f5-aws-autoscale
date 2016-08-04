@@ -144,7 +144,7 @@
     "BigipInstanceType": {
       "Description": "F5 BIG-IP Instance Type",
       "Type": "String",
-      "Default": "m4.xlarge",
+      "Default": "m4.2xlarge",
       "AllowedValues": [
         "t2.medium",
         "t2.large",
