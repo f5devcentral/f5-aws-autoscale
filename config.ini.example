@@ -41,9 +41,10 @@ iam_secret_key=<secret key>
 ; ex. bigip_license_key=CPOIB-VGPHS-BCHOD-JXBYE-XWKWMUO
 bigip_license_key=<license key>
 
-; 3 availability zones
-; azs=<availability zone 1>,<availability zone 2>,<availability zone 3>
-; ex. azs=us-east-1b,us-east-1c,us-west-1d
+; 2 availability zones required
+; NOTE: most regions only support 2 AZs so example VPC (in common.template) only has 2 AZs
+; azs=<availability zone 1>,<availability zone 2>
+; ex. azs=us-east-1b,us-east-1c
 azs=<availabilty zones>
 
 

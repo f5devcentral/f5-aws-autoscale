@@ -89,16 +89,8 @@ deployments/SSL-L7proxy-sandwich-utility-only-immutable/README.md
 
 *Note: If you do not Accept the EULA in the Marketplace, the cloudformation templates may appear to hang (please see events EVENTs tab for information as to why the templates did not "complete")*
 
-2) The reference scale out solution creates a VPC with three Availability Zones so access to one of the regions below:
 
-  * us-east-1 (N.Virginia)
-  * us-west-2 (Oregon) 
-  * eu-west-1 (Ireland)
-  * sa-east-1 (Sao Paulo)
-  * ap-southeast-2 (Sydney)
-
-
-3) Set of AWS Access Keys for use by the BIG-IP, as described here:<br>
+2) Set of AWS Access Keys for use by the BIG-IP, as described here:<br>
 - https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/bigip-ve-setup-amazon-ec2-12-0-0/4.html#unique_1903231220<br>
 
 These keys will be used to send authenticated messages to AWS (ex. cloudwatch metrics). 
@@ -120,9 +112,9 @@ ex. The user whose keys are being used should have following policy attached:
 }
 ```
 
-4) OPTIONAL: Upload a certificate to a private S3 bucket that the those aws keys have permisson to. Otherwise, the "default" certificate on the Big-IP will be used *(recommended for first time)*. For more information about managing SSL certificates, see the README.md in each deployment type directory (ex. /deployments/**deployment_type**/README.md). 
+3) OPTIONAL: Upload a certificate to a private S3 bucket that the those aws keys have permisson to. Otherwise, the "default" certificate on the Big-IP will be used *(recommended for first time)*. For more information about managing SSL certificates, see the README.md in each deployment type directory (ex. /deployments/**deployment_type**/README.md). 
 
-5) OPTIONAL - If you use the deploy_stacks.py python script per instructions below:<br>
+4) OPTIONAL - If you use the deploy_stacks.py python script per instructions below:<br>
 
 - Install yaml and boto3<br>
 ```
@@ -154,7 +146,7 @@ deployments/SSL-L7proxy-sandwich-utility-only-immutable/cfts
 
 Launch the following CFTs in the following order:
 
-  1) common.template
+  1) common.template 
 
   2) application.template
 
@@ -163,6 +155,8 @@ Launch the following CFTs in the following order:
   4) byol-bigip.template (if deployment type contains it)
 
   5) ubuntu-client.template
+
+DISCLAIMER: the reference diagram above shows three Availability Zones to further illustrate scale-out. However, many regions only contain two Availibility Zones so common template creates VPC with two zones.
 
 This ordering is necessary because "output" values from previous templates are used as "input" parameters for later templates.  Note that "output" variables names are the same for all matching input parameters. For example, the outputs from the common.template include Vpc, Subnets, AvailabilityZones, BigipSecurityGroup, etc. so when creating later templates, you should "copy" some outputs from previous templates and "paste" them into input parameters of the next. 
 

@@ -32,9 +32,10 @@ IamAccessKey: <aws access key>
 IamSecretKey: <aws secret key>
 
 # REQUIRED
-# 3 availability zones
-# AvailabilityZones: <availability zone 1>,<availability zone 2>,<availability zone 3>
-# ex. AvailabilityZones: us-east-1b,us-east-1c,us-east-1d
+# 2 availability zones required
+# NOTE: most regions only support 2 AZs so example VPC (deployed in common.template) only has 2 AZs
+# AvailabilityZones: <availability zone 1>,<availability zone 2>
+# ex. AvailabilityZones: us-east-1b,us-east-1c
 AvailabilityZones: <availabilty zones>
 
 # OPTIONAL: Defaults to 8443

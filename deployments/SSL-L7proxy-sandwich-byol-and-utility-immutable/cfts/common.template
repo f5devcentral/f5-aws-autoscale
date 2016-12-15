@@ -15,9 +15,9 @@
       "ConstraintDescription": "Must be a valid, unusued port on BIG-IP."
     },
     "AvailabilityZones": {
-      "Description" : "Names of 3 Availability Zones in this Region",
+      "Description" : "Names of 2 Availability Zones in this Region",
       "Type": "List<AWS::EC2::AvailabilityZone::Name>",
-      "Default": "[us-east-1b,us-east-1c,us-east-1d]"
+      "Default": "[us-east-1b,us-east-1c]"
     },    
     "KeyName": {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
@@ -108,21 +108,6 @@
         ]
       }
     },
-    "AZ3ExternalSubnet" : {
-      "Type" : "AWS::EC2::Subnet",
-      "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
-        "CidrBlock" : "10.0.21.0/24",
-        "AvailabilityZone" :  { "Fn::Select": [
-              "2", { "Ref": "AvailabilityZones" }
-          ]
-        },
-        "Tags" : [ 
-          { "Key" : "Name", "Value" : "AZ3 External Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
-        ]
-      }
-    },
     "AZ1ApplicationSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
@@ -149,21 +134,6 @@
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ2 Application Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
-        ]
-      }
-    },
-    "AZ3ApplicationSubnet" : {
-      "Type" : "AWS::EC2::Subnet",
-      "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
-        "CidrBlock" : "10.0.23.0/24",
-        "AvailabilityZone" : { "Fn::Select": [
-              "2", { "Ref": "AvailabilityZones" }
-          ]
-        },
-        "Tags" : [ 
-          { "Key" : "Name", "Value" : "AZ3 Application Subnet" },
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
@@ -235,13 +205,6 @@
         "RouteTableId" : { "Ref" : "ExternalRouteTable" }
       }
     },
-    "AZ3ExternalSubnetRouteTableAssociation" : {
-      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties" : {
-        "SubnetId" : { "Ref" : "AZ3ExternalSubnet" },
-        "RouteTableId" : { "Ref" : "ExternalRouteTable" }
-      }
-    },
     "AZ1ApplicationSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
@@ -253,13 +216,6 @@
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "AZ2ApplicationSubnet" },
-        "RouteTableId" : { "Ref" : "ApplicationRouteTable" }
-      }
-    },
-    "AZ3ApplicationSubnetRouteTableAssociation" : {
-      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties" : {
-        "SubnetId" : { "Ref" : "AZ3ApplicationSubnet" },
         "RouteTableId" : { "Ref" : "ApplicationRouteTable" }
       }
     },
@@ -381,8 +337,7 @@
         },
         "Subnets" : [ 
             { "Ref": "AZ1ExternalSubnet" },
-            { "Ref": "AZ2ExternalSubnet" },
-            { "Ref": "AZ3ExternalSubnet" }  
+            { "Ref": "AZ2ExternalSubnet" }
         ],
         "CrossZone" : true,
         "Listeners" : [ {
@@ -430,8 +385,7 @@
         },
         "Subnets" : [ 
             { "Ref": "AZ1ApplicationSubnet" },
-            { "Ref": "AZ2ApplicationSubnet" },
-            { "Ref": "AZ3ApplicationSubnet" }  
+            { "Ref": "AZ2ApplicationSubnet" }
         ],
         "Listeners" : [ {
             "LoadBalancerPort" : "80",
@@ -482,22 +436,13 @@
         ]
       }
     },
-    "AvailabilityZone3": {
-      "Value": {
-        "Fn::GetAtt": [
-          "AZ3ApplicationSubnet",
-          "AvailabilityZone"
-        ]
-      }
-    },
     "Subnets": {
       "Description": "External Subnets for Bigip",
       "Value":  { "Fn::Join": [
           ",",
           [
             { "Ref": "AZ1ExternalSubnet" },
-            { "Ref": "AZ2ExternalSubnet" },
-            { "Ref": "AZ3ExternalSubnet" }
+            { "Ref": "AZ2ExternalSubnet" }
           ]
         ]
       }
@@ -510,18 +455,13 @@
       "Value": { "Ref": "AZ2ExternalSubnet" },
       "Description": "AZ2 Public or External Subnet ID"
     },
-    "AZ3ExternalSubnet": {
-      "Value": { "Ref": "AZ3ExternalSubnet" },
-      "Description": "AZ3 Public or External Subnet ID"
-    },
     "ApplicationSubnets": {
       "Description": "Application Subnets",
       "Value":  { "Fn::Join": [
           ",",
           [
             { "Ref": "AZ1ApplicationSubnet" },
-            { "Ref": "AZ2ApplicationSubnet" },
-            { "Ref": "AZ3ApplicationSubnet" }
+            { "Ref": "AZ2ApplicationSubnet" }
           ]
         ]
       }
@@ -533,10 +473,6 @@
     "AZ2ApplicationSubnet": {
       "Value": { "Ref": "AZ2ApplicationSubnet" },
       "Description": "AZ2 Application Subnet ID"
-    },
-    "AZ3ApplicationSubnet": {
-      "Value": { "Ref": "AZ3ApplicationSubnet" },
-      "Description": "AZ3 Application Subnet ID"
     },
     "BigipSecurityGroup": {
       "Description": "Id of security group for the BIG-IPs",
