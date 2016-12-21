@@ -39,10 +39,7 @@ Each of the other templates should only be deployed once for a given application
 1) Access to Best Big-IP images in the Amazon region within which you are working.<br>
 - Make sure that you have accepted the EULA for all Images in the AWS marketplace.<br>
 
-2) Set of AWS Access Keys for use by BIG-IP, as described here:<br>
-- https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/bigip-ve-setup-amazon-ec2-12-0-0/4.html#unique_1903231220<br>
-
-3) Upload SSL certificate to AWS
+2) Upload SSL certificate to AWS
 
 http://docs.aws.amazon.com/cli/latest/reference/iam/upload-server-certificate.html
 

@@ -30,7 +30,7 @@
             },
           "Parameters": [
             "sshKey",
-            "sshLocation",
+            "restrictedSrcAddress",
             "instanceType",
             "throughput",
             "adminUsername",       
@@ -98,7 +98,7 @@
         "sshKey": {
           "default": "SSH Key Name"
         },
-        "sshLocation": {
+        "restrictedSrcAddress": {
           "default": "SSH Location"
         },
         "instanceType": {
@@ -199,7 +199,7 @@
       "Description": "Existing EC2 KeyPair to enable SSH access to the BIG-IP instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "sshLocation" : {
+    "restrictedSrcAddress" : {
       "Description" : "IP address range that can SSH to the BIG-IP instances (Default 0.0.0.0/0)",
       "Type": "String",
       "MinLength": "9",
