@@ -21,11 +21,11 @@
 	},
 	{
 		"ParameterKey":"notificationEmail",
-		"ParameterValue":"test@f5.com"
+		"ParameterValue":"demo@example.com"
 	},
 	{
 		"ParameterKey":"subnets",
-		"ParameterValue":"subnet-42be606f,subnet-6e119f27,subnet-b7fc2eec"
+		"ParameterValue":"subnet-42be606f,subnet-6e119f27"
 	},
 	{
 		"ParameterKey":"bigipElasticLoadBalancer",
