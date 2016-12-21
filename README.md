@@ -44,7 +44,6 @@ Example virtual service has a simple Web Application Firewall policy. Deploys Bi
 * [**SSL-waf-utility-only-immutable**](SSL-waf-utility-only-immutable) *(uses DNS LB)*
 * [**SSL-waf-sandwich-utility-only-immutable**](SSL-waf-sandwich-utility-only-immutable)  *(uses ELB)*
 * [**SSL-waf-sandwich-byol-and-utility-immutable**](SSL-waf-sandwich-byol-and-utility-immutable)  *(uses ELB)*
-* [**SSL-waf-sandwich-utility-only-clustered**](SSL-waf-sandwich-utility-only-clustered)  *(uses ELB)*
 
 **Deployment Name Terms:**
 
@@ -154,7 +153,7 @@ Launch the following CFTs in the following order:
 
   4) byol-bigip.template (if deployment type contains it)
 
-  5) ubuntu-client.template ()
+  5) ubuntu-client.template ( Optional )
 
 DISCLAIMER: the reference diagram above shows three Availability Zones to further illustrate scale-out. However, many regions only contain two Availibility Zones so common template creates VPC with two zones.
 
@@ -169,7 +168,7 @@ This will be the easiest and least error prone method by far. The script will la
 
 To use this script:
 
-1) Clone this repoistory and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory
+1) Clone this repoistory and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
 
   - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-existing-vpc.template">
     <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
@@ -179,7 +178,8 @@ To use this script:
   <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
-which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. After launch, ssh to the host  
+
+After launch, go to the output tab of the cloudformation template, obtain the publicIP or PublicDNS, ssh to the host:  
 
 ```
 ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X 
@@ -188,7 +188,13 @@ ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X
 and type "aws configure" to enter your AWS credentials.  
 
 
-2) Find config.yaml.example in this directory, copy this to a new file named config.yaml ( which is excluded in .gitignore to avoid publishing credentials ).   In this config.yaml file, edit the variables for your scenario. 
+2) Find config.yaml.example located in the top directory of the repository, copy this to a new file named "config.yaml" ( which is excluded in .gitignore to avoid publishing credentials ).   
+
+```
+cp config.yaml.example config.yaml
+```
+
+In this config.yaml file, edit the variables for your scenario. 
 
 If you didn't deploy the optional automation host above, the last flag in the script 'deploy_jmeter_host' should be given a value of 'true' if you wish to test scale out using JMeter as documented below. 
 
