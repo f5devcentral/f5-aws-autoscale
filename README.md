@@ -157,7 +157,7 @@ Launch the following CFTs in the following order:
 
 DISCLAIMER: the reference diagram above shows three Availability Zones to further illustrate scale-out. However, many regions only contain two Availibility Zones so common template creates VPC with two zones.
 
-This ordering is necessary because "output" values from previous templates are used as "input" parameters for later templates.  Note that "output" variables names are the same for all matching input parameters. For example, the outputs from the common.template include Vpc, Subnets, AvailabilityZones, BigipSecurityGroup, etc. so when creating later templates, you should "copy" some outputs from previous templates and "paste" them into input parameters of the next. 
+This ordering is necessary because "output" values from previous templates are used as "input" parameters for later templates.  Note that "output" variables names are the same for all matching input parameters. For example, the outputs from the common.template include vpc, subnets, availabilityZones, bigipSecurityGroup, etc. so when creating later templates, you should "copy" some outputs from previous templates and "paste" them into input parameters of the next. 
 
 Although this method may allow you to develop a deeper understanding of the autoscaled deployments, due to numerous inputs and outputs, it is more error prone.  
 
@@ -168,7 +168,7 @@ This will be the easiest and least error prone method by far. The script will la
 
 To use this script:
 
-1) Clone this repoistory and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
+1) Clone or download this repoistory to the host running this python script and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
 
   - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-existing-vpc.template">
     <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
@@ -179,7 +179,7 @@ To use this script:
 </a>
 
 
-After launch, go to the output tab of the cloudformation template, obtain the publicIP or PublicDNS, ssh to the host:  
+After launch, go to the output tab of the cloudformation template, obtain the publicIP or publicDNS, ssh to the host:  
 
 ```
 ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X 
