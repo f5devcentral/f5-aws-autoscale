@@ -340,7 +340,7 @@
           "Timeout": "5",
           "UnhealthyThreshold": "10"
         },
-        "subnets" : [ 
+        "Subnets" : [ 
             { "Ref": "aZ1ExternalSubnet" },
             { "Ref": "aZ2ExternalSubnet" }
         ],
