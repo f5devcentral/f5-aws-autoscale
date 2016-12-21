@@ -9,7 +9,7 @@
             "default": "DEPLOYMENT"
           },
           "Parameters": [
-            "DeploymentName"
+            "deploymentName"
           ]
         },
         {
@@ -17,10 +17,10 @@
             "default": "NETWORKING CONFIGURATION"
           },
           "Parameters": [
-            "Vpc",
-            "AvailabilityZone1",
-            "AZ1ExternalSubnet",
-            "BigipSecurityGroup"
+            "vpc",
+            "availabilityZone1",
+            "aZ1ExternalSubnet",
+            "bigipSecurityGroup"
           ]
         },
         {
@@ -28,17 +28,17 @@
               "default": "INSTANCE CONFIGURATION"
             },
           "Parameters": [
-            "KeyName",
-            "SSHLocation",
-            "BigipInstanceType",
-            "BigipPerformanceType",         
-            "BigipAdminPassword",
-            "BigipLicenseKey",
-            "IamAccessKey",
-            "IamSecretKey",
-            "BigipManagementGuiPort",
-            "Timezone",
-            "NTPServers"
+            "sshKey",
+            "restrictedSrcAddress",
+            "instanceType",
+            "bigipPerformanceType",         
+            "adminPassword",
+            "licenseKey1",
+            "iamAccessKey",
+            "iamSecretKey",
+            "managementGuiPort",
+            "timezone",
+            "ntpServers"
           ]
         },
         {
@@ -46,7 +46,7 @@
             "default": "AUTO SCALING CONFIGURATION"
           },
           "Parameters": [
-            "BigipAutoscaleGroup"
+            "bigipAutoscaleGroup"
           ]
         },
         {
@@ -54,86 +54,86 @@
             "default": "WAF VIRTUAL SERVICE CONFIGURATION"
           },
           "Parameters": [
-            "CertificateUrl",
-            "VirtualServicePort",
-            "AppPoolMemberPort",
-            "AppInternalELBDnsName"
+            "certificateUrl",
+            "virtualServicePort",
+            "applicationPort",
+            "appInternalDnsName"
           ]
         }
       ],
       "ParameterLabels": {
-        "DeploymentName" : {
+        "deploymentName" : {
           "default": "Deployment Name - used in creating objects"
         },
-        "Vpc": {
+        "vpc": {
           "default": "VPC Id"
         },
-        "AvailabilityZone1": {
+        "availabilityZone1": {
           "default": "Availability Zone"
         },
-        "AZ1ExternalSubnet": {
+        "aZ1ExternalSubnet": {
           "default": "Subnet Id"
         },
-        "BigipSecurityGroup": {
-          "default": "Security Group for Big-IPs"
+        "bigipSecurityGroup": {
+          "default": "Security Group for BIG-IPs"
         },
-        "BigipInstanceType": {
-          "default": "Big-IP Instance Type"
+        "instanceType": {
+          "default": "BIG-IP Instance Type"
         },
-        "BigipLicenseKey": {
-            "default": "Big-IP License Registration Key"
+        "licenseKey1": {
+            "default": "BIG-IP License Registration Key"
         },
-        "BigipManagementGuiPort": {
-          "default": "Big-IP GUI Port"
+        "managementGuiPort": {
+          "default": "BIG-IP GUI Port"
         },
-        "Timezone":{
+        "timezone":{
           "default": "Timezone (Olson)"
         },
-        "NTPServers":{
+        "ntpServers":{
           "default": "NTP Servers - space seperated"
         },
-        "BigipAutoscaleGroup": {
+        "bigipAutoscaleGroup": {
           "default": "Name of Autoscale Group to Send Stats"
         },
-        "CertificateUrl": {
+        "certificateUrl": {
           "default": "URL containing SSL Certificate"
         },
-        "VirtualServicePort": {
+        "virtualServicePort": {
           "default": "Virtual Service Port"
         },
-        "AppPoolMemberPort": {
+        "applicationPort": {
           "default": "Application Pool Member Port"
         },
-        "AppInternalELBDnsName": {
+        "appInternalDnsName": {
           "default": "Elastic Load Balancer for Apps"
         }
       }
     }
   },
   "Parameters": {
-    "DeploymentName" : {
+    "deploymentName" : {
       "Description" : "Deployment Name - used in creating objects",
       "Type" : "String",
       "MaxLength": 20,
       "Default": "my_demo"
     },    
-    "Vpc": {
+    "vpc": {
       "Description": "Common VPC for whole deployment",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "AvailabilityZone1": {
-      "Description": "Availability zone in which Bigip is being deployed",
+    "availabilityZone1": {
+      "Description": "Availability zone in which BIG-IP is being deployed",
       "Type": "AWS::EC2::AvailabilityZone::Name"
     },
-    "AZ1ExternalSubnet": {
+    "aZ1ExternalSubnet": {
       "Description": "AZ1 Public or External Subnet ID",
       "Type": "AWS::EC2::Subnet::Id"
     },
-    "BigipSecurityGroup": {
+    "bigipSecurityGroup": {
       "Description": "Pre-existing security group for BIG-IP",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
-    "BigipAdminPassword": {
+    "adminPassword": {
         "ConstraintDescription": "Please verify your BIG-IP Admin Password",
         "Description": "Please enter your BIG-IP Admin Password",
         "MaxLength": "255",
@@ -141,11 +141,11 @@
         "NoEcho": true,
         "Type": "String"
     },
-    "KeyName": {
+    "sshKey": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "BigipInstanceType": {
+    "instanceType": {
       "Description": "F5 BIG-IP Instance Type",
       "Type": "String",
       "Default": "m4.2xlarge",
@@ -166,10 +166,10 @@
         "c4.2xlarge",
         "c4.4xlarge"
       ],
-      "ConstraintDescription": "must be a valid Big-IP virtual EC2 instance type."
+      "ConstraintDescription": "must be a valid BIG-IP virtual EC2 instance type."
     },
-    "BigipPerformanceType": {
-      "Description": "F5 Bigip Performance Type",
+    "bigipPerformanceType": {
+      "Description": "F5 BIG-IP Performance Type",
       "Type": "String",
       "Default": "Best",
       "AllowedValues": [
@@ -177,47 +177,47 @@
         "Better",
         "Best"
       ],
-      "ConstraintDescription": "Must be a valid F5 Big-IP performance type"
+      "ConstraintDescription": "Must be a valid F5 BIG-IP performance type"
     },
-    "BigipLicenseKey": {
+    "licenseKey1": {
       "Description": "Reg key for BIG-IP",
       "Type": "String",
       "ConstraintDescription": "License key must include both LTM and ASM (Best bundle)"
     },
-    "BigipManagementGuiPort": {
+    "managementGuiPort": {
       "Description": "Port to use for the managment GUI",
       "Type": "Number",
       "Default": 8443,
       "ConstraintDescription": "Must be a valid, unusued port on BIG-IP."
     },
-    "Timezone": {
+    "timezone": {
       "Description": "Enter a Olson timezone string from /usr/share/zoneinfo",
       "Default": "UTC",
       "Type": "String"
     },
-    "NTPServers": {
+    "ntpServers": {
       "Description": "Enter a space list of NTP servers. ex. 0.pool.ntp.org 1.pool.ntp.org",
       "Default": "0.pool.ntp.org 1.pool.ntp.org",
       "Type": "String"
     },
-    "BigipAutoscaleGroup": {
+    "bigipAutoscaleGroup": {
       "Description": "Name of the autoscale group for BIG-IP, used as an indentifer for CloudWatch bin with iCall scripts.",
       "Type": "String"
     },
-    "CertificateUrl": {
+    "certificateUrl": {
       "Description": "Enter url containing pfx ssl certificate used for application - ex. https://s3.amazonaws.com/f5example/website.pfx",
       "Default": "default",
       "Type": "String"      
     },
-    "VirtualServicePort": {
-      "Description": "The port for the Virtual Service on the Big-IP",
+    "virtualServicePort": {
+      "Description": "The port for the Virtual Service on the BIG-IP",
       "Default": "443",
       "ConstraintDescription": "Must be a valid port number (1-65535).",
       "Type": "Number",
       "MaxValue": "65535",
       "MinValue": "1"
     },
-    "AppPoolMemberPort": {
+    "applicationPort": {
       "Description": "The Pool Member Port",
       "Default": "80",
       "ConstraintDescription": "Must be a valid port number (1-65535).",
@@ -225,12 +225,12 @@
       "MaxValue": "65535",
       "MinValue": "1"
     },
-    "AppInternalELBDnsName": {
+    "appInternalDnsName": {
       "Description": "DNS of the ELB used for the application",
       "Type": "String",
       "Default": "AppInternalElasticLoadBalancer-11689617.us-east-1.elb.amazonaws.com"
     },
-    "IamSecretKey": {
+    "iamSecretKey": {
       "Description": "IAM Secret Key",
       "Type": "String",
       "MinLength": "1",
@@ -239,7 +239,7 @@
       "NoEcho": "True",
       "ConstraintDescription": "can contain only ASCII characters."
     },
-    "IamAccessKey": {
+    "iamAccessKey": {
       "Description": "IAM Access Key",
       "Type": "String",
       "MinLength": "16",
@@ -248,7 +248,7 @@
       "NoEcho": "True",
       "ConstraintDescription": "can contain only ASCII characters."
     },
-    "SSHLocation" : {
+    "restrictedSrcAddress" : {
       "Description" : " The IP address range that can be used to SSH to the EC2 instances",
       "Type": "String",
       "MinLength": "9",
@@ -303,7 +303,7 @@
     }
   },
   "Resources": {
-    "BigipEc2Instance": {
+    "bigipEc2Instance": {
       "Type": "AWS::EC2::Instance",
       "Metadata": {
         "AWS::CloudFormation::Init": {
@@ -318,62 +318,62 @@
                       "HOSTNAME=`curl http://169.254.169.254/latest/meta-data/hostname`\n",
                       "TZ='",
                       {
-                        "Ref": "Timezone"
+                        "Ref": "timezone"
                       },
                       "'\n",
                       "NTPSERVERS='",
                       {
-                        "Ref": "NTPServers"
+                        "Ref": "ntpServers"
                       },
                       "'\n",
                       "REGKEY=",
                       {
-                        "Ref": "BigipLicenseKey"
+                        "Ref": "licenseKey1"
                       },
                       "\n",
                       "APP_NAME='",
                       {
-                        "Ref": "DeploymentName"
+                        "Ref": "deploymentName"
                       },
                       "'\n",
                       "CERTIFICATE_URL='",
                       {
-                        "Ref": "CertificateUrl"
+                        "Ref": "certificateUrl"
                       },
                       "'\n",
                       "POOL_DNS='",
                       {
-                        "Ref": "AppInternalELBDnsName"
+                        "Ref": "appInternalDnsName"
                       },
                       "'\n",
                       "POOL_MEMBER_PORT='",
                       {
-                        "Ref": "AppPoolMemberPort"
+                        "Ref": "applicationPort"
                       },
                       "'\n",
                       "VS_PORT='",
                       {
-                        "Ref": "VirtualServicePort"
+                        "Ref": "virtualServicePort"
                       },
                       "'\n",
                       "IAM_ACCESS_KEY='",
                       {
-                        "Ref": "IamAccessKey"
+                        "Ref": "iamAccessKey"
                       },
                       "'\n",
                       "IAM_SECRET_KEY='",
                       {
-                        "Ref": "IamSecretKey"
+                        "Ref": "iamSecretKey"
                       },
                       "'\n",
                       "ADMIN_PASSWORD='",
                       {
-                          "Ref": "BigipAdminPassword"
+                          "Ref": "adminPassword"
                       },
                       "'\n",
                       "MANAGEMENT_GUI_PORT='",
                       {
-                        "Ref": "BigipManagementGuiPort"
+                        "Ref": "managementGuiPort"
                       },
                       "'\n",
                       "GATEWAY_MAC=`ifconfig eth0 | egrep HWaddr | awk '{print tolower($5)}'`\n",
@@ -464,7 +464,7 @@
                       "echo done\n",
                       "networkUp 120 '-I https://aws.amazon.com'\n",
                       "BIGIP_ASG_NAME=`/opt/aws/autoscaling-1.0.61.6/bin/as-describe-auto-scaling-groups -I ${IAM_ACCESS_KEY} -S ${IAM_SECRET_KEY} BigipAutoscaleGroup | grep \"AUTO-SCALING-GROUP.*",
-                      {"Ref" : "DeploymentName"},
+                      {"Ref" : "deploymentName"},
                       ".*BigipAutoscaleGroup\" | cut -d' ' -f3` \n",
                       "tmsh modify sys autoscale-group autoscale-group-id ${BIGIP_ASG_NAME} \n",
                       "tmsh load sys config merge file /usr/share/aws/metrics/aws-cloudwatch-icall-metrics-config \n",
@@ -513,18 +513,18 @@
               "Ref": "AWS::Region"
             },
             {
-              "Ref": "BigipPerformanceType"
+              "Ref": "bigipPerformanceType"
             }
           ]
         },
         "InstanceType": {
-          "Ref": "BigipInstanceType"
+          "Ref": "instanceType"
         },
         "KeyName": {
-          "Ref": "KeyName"
+          "Ref": "sshKey"
         },
         "AvailabilityZone": {
-          "Ref": "AvailabilityZone1"
+          "Ref": "availabilityZone1"
         },
         "NetworkInterfaces": [
           {
@@ -534,11 +534,11 @@
             "DeleteOnTermination": true,
             "GroupSet": [
               {
-                "Ref": "BigipSecurityGroup"
+                "Ref": "bigipSecurityGroup"
               }
             ],
             "SubnetId": {
-              "Ref": "AZ1ExternalSubnet"
+              "Ref": "aZ1ExternalSubnet"
             }
           }
         ],
@@ -571,17 +571,17 @@
     }
   },
   "Outputs": {
-    "ByolBigipPublicIp": {
+    "byolBigipPublicIp": {
       "Value": {
         "Fn::GetAtt": [
-          "BigipEc2Instance",
+          "bigipEc2Instance",
           "PublicIp"
         ]
       },
       "Description": "Public IP address of the network interface on BIG-IP"
     },
-    "ByolBigipInstance": {
-      "Value": {"Ref": "BigipEc2Instance"},
+    "byolBigipInstance": {
+      "Value": {"Ref": "bigipEc2Instance"},
       "Description": "BYOL BIG-IP"
     }
   }

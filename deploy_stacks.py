@@ -175,57 +175,12 @@ if ".yaml" in config_file:
     with open(config_file, 'r') as config_data:
         config = yaml.load(config_data)
 
-    deployment_name = config['DeploymentName']
+    deployment_name = config['deploymentName']
     region = config['region']
     deploy_jmeter_host = config['deploy_jmeter_host']
 
     dm = DeploymentManager(deployment_name, region)
     dm.add_vars_to_namespace(config)
-
-
-####### Keeping config.ini for backwards compatability ######
-####### Hopefully can get rid of soon ####
-
-if ".ini" in config_file:
-
-    configParser = ConfigParser.ConfigParser()
-    configParser.read(config_file)
-
-    deployment_name = configParser.get('vars', 'deployment_name')
-    region = configParser.get('vars', 'region')
-
-    dm = DeploymentManager(deployment_name, region)
-
-    admin_password = configParser.get('vars', 'admin_password')
-    bigip_management_gui_port = configParser.get('vars', 'bigip_management_gui_port')
-    key_name = configParser.get('vars', 'key_pair')
-    iam_access_key = configParser.get('vars', 'iam_access_key')
-    iam_secret_key = configParser.get('vars', 'iam_secret_key')
-    bigip_license_key = configParser.get('vars', 'bigip_license_key')
-    azs = configParser.get('vars', 'azs')
-    cert_url = configParser.get('vars', 'cert_url')
-    cert_id = configParser.get('vars', 'cert_id')
-    scale_up_bytes_threshold = configParser.get('vars', 'scale_up_bytes_threshold')
-    scale_down_bytes_threshold = configParser.get('vars', 'scale_down_bytes_threshold')
-    email = configParser.get('vars', 'email')
-    deploy_jmeter_host = configParser.get('vars', 'deploy_jmeter_host')
-
-    dm.add_vars_to_namespace({
-        'DeploymentName' : deployment_name,
-        'BigipAdminPassword': admin_password,
-        'KeyName': key_name,
-        'IamAccessKey': iam_access_key,
-        'IamSecretKey': iam_secret_key,
-        'BigipLicenseKey': bigip_license_key,
-        'BigipManagementGuiPort': bigip_management_gui_port,
-        'AvailabilityZones': azs,
-        'CertificateUrl': cert_url,
-        'CertificateId': cert_id,
-        'ScaleUpBytesThreshold': scale_up_bytes_threshold,
-        'ScaleDownBytesThreshold': scale_down_bytes_threshold,    
-        'NotificationEmail': email
-    })
-
 
 
 ####################################
@@ -261,19 +216,19 @@ if "byol" in deployment_type:
 
     elb_client.register_instances_with_load_balancer(
         LoadBalancerName= deployment_name + "-BigipElb",
-        Instances=[{'InstanceId': dm.namespace['ByolBigipInstance']}]
+        Instances=[{'InstanceId': dm.namespace['byolBigipInstance']}]
     )
 
 
-output_list = ['BigipAutoscaleGroup']
+output_list = ['bigipAutoscaleGroup']
 
 if "sandwich" in deployment_type:
-    output_list.append('BigipELBDnsName')
+    output_list.append('bigipELBDnsName')
 if "byol" in deployment_type:
-    output_list.append('ByolBigipInstance')
-    output_list.append('ByolBigipPublicIp')
+    output_list.append('byolBigipInstance')
+    output_list.append('byolBigipPublicIp')
 if deploy_jmeter_host:
-    output_list.append('ClientPublicIP')
+    output_list.append('clientPublicIP')
 
 print 'Finished deployment of CFTs'
 print 'Info:'

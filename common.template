@@ -18,7 +18,7 @@
       "Description" : "Names of 2 Availability Zones in this Region",
       "Type": "List<AWS::EC2::AvailabilityZone::Name>",
       "Default": "[us-east-1b,us-east-1c]"
-    },    
+    },     
     "sshKey": {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
@@ -46,7 +46,7 @@
             "Value": "AWS::StackName"
           },
           {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -59,7 +59,7 @@
       "Properties": {
         "Tags": [
           {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -89,7 +89,7 @@
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ1 External Subnet" },
-          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
@@ -104,7 +104,7 @@
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ2 External Subnet" },
-          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
@@ -119,7 +119,7 @@
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ1 Application Subnet" },
-          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
@@ -134,7 +134,7 @@
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ2 Application Subnet" },
-          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
@@ -144,7 +144,7 @@
         "VpcId" : { "Ref" : "vpc"},
         "Tags" : [
           { "Key" : "Name", "Value" : "External Route Table" },
-          { "Key" : "application", "Value" : { "Ref" : "AWS::StackName" } }, 
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } }, 
           { "Key" : "Network", "Value" : "External" }
         ]
       }
@@ -157,7 +157,7 @@
         },
         "Tags": [
           {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -270,7 +270,7 @@
         ],
         "Tags": [
           {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -307,53 +307,7 @@
         ],
         "Tags": [
           {
-            "Key": "application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          }
-        ]
-      }
-    },
-    "bigipElasticLoadBalancer": {
-      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "DependsOn": "internetGatewayAttachment",
-      "Properties": {
-        "LoadBalancerName": {
-          "Fn::Join": [
-            "",
-            [ 
-              { "Ref" : "deploymentName" },
-              "-BigipElb"
-            ]
-          ]
-        },
-        "HealthCheck": {
-          "HealthyThreshold": "2",
-          "Interval": "10",
-          "Target": "HTTPS:443/",
-          "Timeout": "5",
-          "UnhealthyThreshold": "10"
-        },
-        "subnets" : [ 
-            { "Ref": "aZ1ExternalSubnet" },
-            { "Ref": "aZ2ExternalSubnet" }
-        ],
-        "CrossZone" : true,
-        "Listeners" : [ {
-            "LoadBalancerPort" : "443",
-            "InstancePort" : "443",
-            "Protocol" : "TCP",
-            "InstanceProtocol" : "TCP"
-        } ],
-        "SecurityGroups": [
-          {
-            "Ref": "bigipSecurityGroup"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -400,7 +354,7 @@
         ],
         "Tags": [
           {
-            "Key": "application",
+            "Key": "Application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -486,28 +440,13 @@
         "Ref": "appSecurityGroup"
       }
     },
-    "bigipElasticLoadBalancer": {
-      "Description": "Id of ELB Group for all BIG-IPs",
-      "Value": {
-        "Ref": "bigipElasticLoadBalancer"
-      }
-    },
-    "bigipELBDnsName": {
-      "Description": "DNS Name for the ELB Group containing BIG-IP",
-      "Value": {
-        "Fn::GetAtt": [
-          "bigipElasticLoadBalancer",
-          "DNSName"
-        ]
-      }
-    },
     "appInternalElasticLoadBalancer": {
       "Description": "Id of ELB for App Pool",
       "Value": {
         "Ref": "appInternalElasticLoadBalancer"
       }
     },
-    "appInternalDnsName": {
+    "appInternalELBDnsName": {
       "Description": "DNS Name for the ELB for App Pool",
       "Value": {
         "Fn::GetAtt": [

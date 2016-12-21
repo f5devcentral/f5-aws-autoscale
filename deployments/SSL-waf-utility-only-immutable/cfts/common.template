@@ -2,28 +2,28 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template deploys common EC2/VPC resources which will be used by the other templates.  In particular, this template creates a VPC, subnets, a routing table, common security groups, and an ElasticLoadBalancer group to which all BIG-IPs will be added.",
   "Parameters": {
-    "DeploymentName" : {
+    "deploymentName" : {
       "Description" : "Deployment Name - used for creating objects",
       "Type" : "String",
       "MaxLength": 20,
       "Default": "Autoscale"
     },    
-    "BigipManagementGuiPort": {
+    "managementGuiPort": {
       "Description": "Port to use for the managment GUI used in Security Group",
       "Type": "Number",
       "Default": 8443,
       "ConstraintDescription": "Must be a valid, unusued port on BIG-IP."
     },
-    "AvailabilityZones": {
+    "availabilityZones": {
       "Description" : "Names of 2 Availability Zones in this Region",
       "Type": "List<AWS::EC2::AvailabilityZone::Name>",
       "Default": "[us-east-1b,us-east-1c]"
     },     
-    "KeyName": {
+    "sshKey": {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },          
-    "SSHLocation" : {
+    "restrictedSrcAddress" : {
       "Description" : " The IP address range that can be used to SSH to the EC2 instances",
       "Type": "String",
       "MinLength": "9",
@@ -34,7 +34,7 @@
     }
   },
   "Resources": {
-    "Vpc": {
+    "vpc": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
         "EnableDnsSupport": "true",
@@ -46,7 +46,7 @@
             "Value": "AWS::StackName"
           },
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -54,12 +54,12 @@
         ]
       }
     },
-    "InternetGateway": {
+    "internetGateway": {
       "Type": "AWS::EC2::InternetGateway",
       "Properties": {
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -67,97 +67,97 @@
         ]
       }
     },
-    "InternetGatewayAttachment": {
+    "internetGatewayAttachment": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
       "Properties": {
         "VpcId": {
-          "Ref": "Vpc"
+          "Ref": "vpc"
         },
         "InternetGatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "internetGateway"
         }
       }
     },
-    "AZ1ExternalSubnet" : {
+    "aZ1ExternalSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
+        "VpcId" : { "Ref" : "vpc" },
         "CidrBlock" : "10.0.1.0/24",
         "AvailabilityZone" :  { "Fn::Select": [
-              "0", { "Ref": "AvailabilityZones" }
+              "0", { "Ref": "availabilityZones" }
           ]
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ1 External Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
-    "AZ2ExternalSubnet" : {
+    "aZ2ExternalSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
+        "VpcId" : { "Ref" : "vpc" },
         "CidrBlock" : "10.0.11.0/24",
         "AvailabilityZone" :  { "Fn::Select": [
-              "1", { "Ref": "AvailabilityZones" }
+              "1", { "Ref": "availabilityZones" }
           ]
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ2 External Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
-    "AZ1ApplicationSubnet" : {
+    "aZ1ApplicationSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
+        "VpcId" : { "Ref" : "vpc" },
         "CidrBlock" : "10.0.3.0/24",
         "AvailabilityZone" : { "Fn::Select": [
-              "0", { "Ref": "AvailabilityZones" }
+              "0", { "Ref": "availabilityZones" }
           ]
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ1 Application Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
-    "AZ2ApplicationSubnet" : {
+    "aZ2ApplicationSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "Vpc" },
+        "VpcId" : { "Ref" : "vpc" },
         "CidrBlock" : "10.0.13.0/24",
         "AvailabilityZone" : { "Fn::Select": [
-              "1", { "Ref": "AvailabilityZones" }
+              "1", { "Ref": "availabilityZones" }
           ]
         },
         "Tags" : [ 
           { "Key" : "Name", "Value" : "AZ2 Application Subnet" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} }
+          { "Key" : "application", "Value" : { "Ref" : "AWS::StackId"} }
         ]
       }
     },
-    "ExternalRouteTable" : {
+    "externalRouteTable" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
-        "VpcId" : { "Ref" : "Vpc"},
+        "VpcId" : { "Ref" : "vpc"},
         "Tags" : [
           { "Key" : "Name", "Value" : "External Route Table" },
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } }, 
+          { "Key" : "application", "Value" : { "Ref" : "AWS::StackName" } }, 
           { "Key" : "Network", "Value" : "External" }
         ]
       }
     },
-    "ApplicationRouteTable": {
+    "applicationRouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "Vpc"
+          "Ref": "vpc"
         },
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -165,65 +165,65 @@
         ]
       }
     },
-    "ExternalInternetRoute": {
+    "externalInternetRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "InternetGatewayAttachment",
+      "DependsOn": "internetGatewayAttachment",
       "Properties": {
         "RouteTableId": {
-          "Ref": "ExternalRouteTable"
+          "Ref": "externalRouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "internetGateway"
         }
       }
     },
-    "ApplicationInternetRoute": {
+    "applicationInternetRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "InternetGatewayAttachment",
+      "DependsOn": "internetGatewayAttachment",
       "Properties": {
         "RouteTableId": {
-          "Ref": "ApplicationRouteTable"
+          "Ref": "applicationRouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "internetGateway"
         }
       }
     },
-    "AZ1ExternalSubnetRouteTableAssociation" : {
+    "aZ1ExternalSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "AZ1ExternalSubnet" },
-        "RouteTableId" : { "Ref" : "ExternalRouteTable" }
+        "SubnetId" : { "Ref" : "aZ1ExternalSubnet" },
+        "RouteTableId" : { "Ref" : "externalRouteTable" }
       }
     },
-    "AZ2ExternalSubnetRouteTableAssociation" : {
+    "aZ2ExternalSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "AZ2ExternalSubnet" },
-        "RouteTableId" : { "Ref" : "ExternalRouteTable" }
+        "SubnetId" : { "Ref" : "aZ2ExternalSubnet" },
+        "RouteTableId" : { "Ref" : "externalRouteTable" }
       }
     },
-    "AZ1ApplicationSubnetRouteTableAssociation" : {
+    "aZ1ApplicationSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "AZ1ApplicationSubnet" },
-        "RouteTableId" : { "Ref" : "ApplicationRouteTable" }
+        "SubnetId" : { "Ref" : "aZ1ApplicationSubnet" },
+        "RouteTableId" : { "Ref" : "applicationRouteTable" }
       }
     },
-    "AZ2ApplicationSubnetRouteTableAssociation" : {
+    "aZ2ApplicationSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "AZ2ApplicationSubnet" },
-        "RouteTableId" : { "Ref" : "ApplicationRouteTable" }
+        "SubnetId" : { "Ref" : "aZ2ApplicationSubnet" },
+        "RouteTableId" : { "Ref" : "applicationRouteTable" }
       }
     },
-    "BigipSecurityGroup": {
+    "bigipSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "VpcId": {
-          "Ref": "Vpc"
+          "Ref": "vpc"
         },
         "GroupDescription": "Enable SSH access via port 22 and enable access to virtual servers on 80 and 443",
         "SecurityGroupIngress": [
@@ -231,7 +231,7 @@
             "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
-            "CidrIp": { "Ref": "SSHLocation" }
+            "CidrIp": { "Ref": "restrictedSrcAddress" }
           },
           {
             "IpProtocol": "tcp",
@@ -248,12 +248,12 @@
           {
             "IpProtocol": "tcp",
             "FromPort": {
-              "Ref": "BigipManagementGuiPort"
+              "Ref": "managementGuiPort"
             },
             "ToPort": {
-              "Ref": "BigipManagementGuiPort"
+              "Ref": "managementGuiPort"
             },
-            "CidrIp": { "Ref": "SSHLocation" }
+            "CidrIp": { "Ref": "restrictedSrcAddress" }
           },
           {
             "CidrIp": "0.0.0.0/0",
@@ -270,7 +270,7 @@
         ],
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -278,11 +278,11 @@
         ]
       }
     },
-    "AppSecurityGroup": {
+    "appSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "VpcId": {
-          "Ref": "Vpc"
+          "Ref": "vpc"
         },
         "GroupDescription": "Enable access to the App",
         "SecurityGroupIngress": [
@@ -290,7 +290,7 @@
             "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
-            "CidrIp": { "Ref": "SSHLocation" }
+            "CidrIp": { "Ref": "restrictedSrcAddress" }
           },
           {
             "IpProtocol": "tcp",
@@ -307,7 +307,7 @@
         ],
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -315,15 +315,15 @@
         ]
       }
     },
-    "AppInternalElasticLoadBalancer": {
+    "appInternalElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "DependsOn": "InternetGatewayAttachment",
+      "DependsOn": "internetGatewayAttachment",
       "Properties": {
         "LoadBalancerName": {
           "Fn::Join": [
             "",
             [ 
-              { "Ref" : "DeploymentName" },
+              { "Ref" : "deploymentName" },
               "-AppElb"
             ]
           ]
@@ -338,8 +338,8 @@
           "UnhealthyThreshold": "10"
         },
         "Subnets" : [ 
-            { "Ref": "AZ1ApplicationSubnet" },
-            { "Ref": "AZ2ApplicationSubnet" }
+            { "Ref": "aZ1ApplicationSubnet" },
+            { "Ref": "aZ2ApplicationSubnet" }
         ],
         "Listeners" : [ {
             "LoadBalancerPort" : "80",
@@ -349,12 +349,12 @@
         } ],
         "SecurityGroups": [
           {
-            "Ref": "AppSecurityGroup"
+            "Ref": "appSecurityGroup"
           }
         ],
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -364,93 +364,93 @@
     }
   },
   "Outputs": {
-    "Vpc": {
+    "vpc": {
       "Description": "Id of VPC",
       "Value": {
-        "Ref": "Vpc"
+        "Ref": "vpc"
       }
     },
-    "AvailabilityZones": {
-      "Description": "AvailabilityZones",
-      "Value": { "Fn::Join" : [ ",", { "Ref": "AvailabilityZones" } ] }
+    "availabilityZones": {
+      "Description": "availabilityZones",
+      "Value": { "Fn::Join" : [ ",", { "Ref": "availabilityZones" } ] }
     },
-    "AvailabilityZone1": {
+    "availabilityZone1": {
       "Value": {
         "Fn::GetAtt": [
-          "AZ1ApplicationSubnet",
+          "aZ1ApplicationSubnet",
           "AvailabilityZone"
         ]
       }
     },
-    "AvailabilityZone2": {
+    "availabilityZone2": {
       "Value": {
         "Fn::GetAtt": [
-          "AZ2ApplicationSubnet",
+          "aZ2ApplicationSubnet",
           "AvailabilityZone"
         ]
       }
     },
-    "Subnets": {
+    "subnets": {
       "Description": "External Subnets for Bigip",
       "Value":  { "Fn::Join": [
           ",",
           [
-            { "Ref": "AZ1ExternalSubnet" },
-            { "Ref": "AZ2ExternalSubnet" }
+            { "Ref": "aZ1ExternalSubnet" },
+            { "Ref": "aZ2ExternalSubnet" }
           ]
         ]
       }
     },
-    "AZ1ExternalSubnet": {
-      "Value": { "Ref": "AZ1ExternalSubnet" },
+    "aZ1ExternalSubnet": {
+      "Value": { "Ref": "aZ1ExternalSubnet" },
       "Description": "AZ1 Public or External Subnet ID"
     },
-    "AZ2ExternalSubnet": {
-      "Value": { "Ref": "AZ2ExternalSubnet" },
+    "aZ2ExternalSubnet": {
+      "Value": { "Ref": "aZ2ExternalSubnet" },
       "Description": "AZ2 Public or External Subnet ID"
     },
-    "ApplicationSubnets": {
+    "applicationSubnets": {
       "Description": "Application Subnets",
       "Value":  { "Fn::Join": [
           ",",
           [
-            { "Ref": "AZ1ApplicationSubnet" },
-            { "Ref": "AZ2ApplicationSubnet" }
+            { "Ref": "aZ1ApplicationSubnet" },
+            { "Ref": "aZ2ApplicationSubnet" }
           ]
         ]
       }
     },
-    "AZ1ApplicationSubnet": {
-      "Value": { "Ref": "AZ1ApplicationSubnet" },
+    "aZ1ApplicationSubnet": {
+      "Value": { "Ref": "aZ1ApplicationSubnet" },
       "Description": "AZ1 Application Subnet ID"
     },
-    "AZ2ApplicationSubnet": {
-      "Value": { "Ref": "AZ2ApplicationSubnet" },
+    "aZ2ApplicationSubnet": {
+      "Value": { "Ref": "aZ2ApplicationSubnet" },
       "Description": "AZ2 Application Subnet ID"
     },
-    "BigipSecurityGroup": {
+    "bigipSecurityGroup": {
       "Description": "Id of security group for the BIG-IPs",
       "Value": {
-        "Ref": "BigipSecurityGroup"
+        "Ref": "bigipSecurityGroup"
       }
     },
-    "AppSecurityGroup": {
+    "appSecurityGroup": {
       "Description": "Id of security group for the App",
       "Value": {
-        "Ref": "AppSecurityGroup"
+        "Ref": "appSecurityGroup"
       }
     },
-    "AppInternalElasticLoadBalancer": {
+    "appInternalElasticLoadBalancer": {
       "Description": "Id of ELB for App Pool",
       "Value": {
-        "Ref": "AppInternalElasticLoadBalancer"
+        "Ref": "appInternalElasticLoadBalancer"
       }
     },
-    "AppInternalELBDnsName": {
+    "appInternalDnsName": {
       "Description": "DNS Name for the ELB for App Pool",
       "Value": {
         "Fn::GetAtt": [
-          "AppInternalElasticLoadBalancer",
+          "appInternalElasticLoadBalancer",
           "DNSName"
         ]
       }

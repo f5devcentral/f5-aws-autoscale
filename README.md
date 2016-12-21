@@ -44,7 +44,7 @@ Example virtual service has a simple Web Application Firewall policy. Deploys Bi
 * [**SSL-waf-utility-only-immutable**](SSL-waf-utility-only-immutable) *(uses DNS LB)*
 * [**SSL-waf-sandwich-utility-only-immutable**](SSL-waf-sandwich-utility-only-immutable)  *(uses ELB)*
 * [**SSL-waf-sandwich-byol-and-utility-immutable**](SSL-waf-sandwich-byol-and-utility-immutable)  *(uses ELB)*
-
+* [**SSL-waf-sandwich-utility-only-clustered**](SSL-waf-sandwich-utility-only-clustered)  *(uses ELB)*
 
 **Deployment Name Terms:**
 
@@ -56,7 +56,7 @@ Example virtual service has a simple Web Application Firewall policy. Deploys Bi
 
 **immutable** = Requires the Big-IP configuration to be managed via the launch config. Any config changes must be entered into the launch config and relaunched.
 
-**clustered** = *(Coming Soon)*. The Big-IP configuration is managed by syncing the config from an existing member. Changes can be made in traditional operational method of logging into a Big-IP GUI.   
+**clustered**  The Big-IP configuration is managed by syncing the config from an existing member. Changes can be made in traditional operational method of logging into a Big-IP GUI.   
 
 For more details about each deployment, please see the README.md in each deployment type directory. 
 
@@ -154,7 +154,7 @@ Launch the following CFTs in the following order:
 
   4) byol-bigip.template (if deployment type contains it)
 
-  5) ubuntu-client.template
+  5) ubuntu-client.template ()
 
 DISCLAIMER: the reference diagram above shows three Availability Zones to further illustrate scale-out. However, many regions only contain two Availibility Zones so common template creates VPC with two zones.
 
@@ -169,7 +169,29 @@ This will be the easiest and least error prone method by far. The script will la
 
 To use this script:
 
-1) Find config.yaml.example in this directory, copy this to a new file named config.yaml ( which is excluded in .gitignore to avoid publishing credentials ).   In this config.yaml file, edit the variables for your scenario. The last flag in the script 'deploy_jmeter_host' should be given a value of 'true' if you wish to test scale out using JMeter as documented below. 
+1) Clone this repoistory and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory
+
+  - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-existing-vpc.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
+  - automation-host-cft-w-new-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-new-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-new-vpc.template">
+  <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
+which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. After launch, ssh to the host  
+
+```
+ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X 
+```
+
+and type "aws configure" to enter your AWS credentials.  
+
+
+2) Find config.yaml.example in this directory, copy this to a new file named config.yaml ( which is excluded in .gitignore to avoid publishing credentials ).   In this config.yaml file, edit the variables for your scenario. 
+
+If you didn't deploy the optional automation host above, the last flag in the script 'deploy_jmeter_host' should be given a value of 'true' if you wish to test scale out using JMeter as documented below. 
+
 
 2) Then run the script:
 ```
@@ -181,6 +203,9 @@ $python deploy_stacks.py -d SSL-L7proxy-sandwich-utility-only-immutable
 ```
 
 Use the output of the script and/or go the output tab of each cloudformation template to get login or additional information about the deployment.
+
+
+
 
 
 ### Triggering scale out
@@ -195,7 +220,7 @@ or
 for your convenience, you can use the JMeter script included with these examples to generate traffic: 
 
 
-1) If you have launched the optional ubuntu instance, copy or paste the simple_jmeter_load.xml file to the ubuntu host.
+1) If you have launched the "automation-host" or "ubuntu-client" instance, copy or paste the simple_jmeter_load.xml file to the ubuntu host.
 
 ```
 scp -i <path to key pair you provided in config.yaml> simple_jmeter_load.xml ubuntu@<ip address of the ubuntu instance>:/home/ubuntu

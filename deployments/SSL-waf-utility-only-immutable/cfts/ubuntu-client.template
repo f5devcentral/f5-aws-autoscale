@@ -2,23 +2,23 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Deploys a Ubuntu EC2 instanace with JMeter installed",
   "Parameters": {
-    "Vpc": {
+    "vpc": {
       "Description": "Common VPC for whole deployment",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "AZ1ExternalSubnet": {
+    "aZ1ExternalSubnet": {
       "Description": "Common subnet for whole deployment",
       "Type": "AWS::EC2::Subnet::Id"
     },
-    "AvailabilityZone1": {
+    "availabilityZone1": {
       "Description": "Availability zone in which resources are being deployed",
       "Type": "AWS::EC2::AvailabilityZone::Name"
     },
-    "KeyName": {
+    "sshKey": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "InstanceType": {
+    "instanceType": {
       "AllowedValues": [
         "t1.micro",
         "m3.medium",
@@ -33,7 +33,7 @@
       "Description": "Client EC2 instance type",
       "Type": "String"
     },
-    "SSHLocation" : {
+    "restrictedSrcAddress" : {
       "Description" : " The IP address range that can be used to SSH to the EC2 instances",
       "Type": "String",
       "MinLength": "9",
@@ -44,7 +44,7 @@
     }
   },
   "Mappings": {
-    "ImageRegionMap": {
+    "imageRegionMap": {
       "ap-northeast-1": {
         "AMI": "ami-18b6aa19"
       }, 
@@ -72,11 +72,11 @@
     }
   },
   "Resources": {
-    "ClientSecurityGroup": {
+    "clientSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "VpcId": {
-          "Ref": "Vpc"
+          "Ref": "vpc"
         },
         "GroupDescription": "Enable SSH access via port 22",
         "SecurityGroupIngress": [
@@ -84,12 +84,12 @@
             "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
-            "CidrIp": { "Ref": "SSHLocation" }
+            "CidrIp": { "Ref": "restrictedSrcAddress" }
           }
         ],
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             }
@@ -97,12 +97,12 @@
         ]
       }
     },
-    "JMeterClientEc2Instance": {
+    "jMeterClientEc2Instance": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "ImageId": {
           "Fn::FindInMap": [
-            "ImageRegionMap",
+            "imageRegionMap",
             {
               "Ref": "AWS::Region"
             },
@@ -110,13 +110,13 @@
           ]
         },
         "InstanceType": {
-          "Ref": "InstanceType"
+          "Ref": "instanceType"
         },
         "KeyName": {
-          "Ref": "KeyName"
+          "Ref": "sshKey"
         },
         "AvailabilityZone": {
-          "Ref": "AvailabilityZone1"
+          "Ref": "availabilityZone1"
         },
         "NetworkInterfaces": [
           {
@@ -126,11 +126,11 @@
             "DeleteOnTermination": true,
             "GroupSet": [
               {
-                "Ref": "ClientSecurityGroup"
+                "Ref": "clientSecurityGroup"
               }
             ],
             "SubnetId": {
-              "Ref": "AZ1ExternalSubnet"
+              "Ref": "aZ1ExternalSubnet"
             }
           }
         ],
@@ -156,12 +156,12 @@
     }
   },
   "Outputs": {
-    "ClientPrivateIP" : {
-      "Value" : { "Fn::GetAtt" : [ "JMeterClientEc2Instance", "PrivateIp" ] }, 
+    "clientPrivateIP" : {
+      "Value" : { "Fn::GetAtt" : [ "jMeterClientEc2Instance", "PrivateIp" ] }, 
       "Description" : "Private IP for Client"
     },
-    "ClientPublicIP" : {
-      "Value" : { "Fn::GetAtt" : [ "JMeterClientEc2Instance", "PublicIp" ] },
+    "clientPublicIP" : {
+      "Value" : { "Fn::GetAtt" : [ "jMeterClientEc2Instance", "PublicIp" ] },
       "Description" : "Public IP for Client"
     }
   }

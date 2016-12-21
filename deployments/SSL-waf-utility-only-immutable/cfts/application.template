@@ -2,23 +2,23 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template deploys all components to support the application, with the exception of those related to BIG-IP.  An autoscaling group for the application is created, but we leave the creation of CloudWatch alarms and scaling policies as an exercise for the future.",
   "Parameters": {
-    "Vpc": {
+    "vpc": {
       "Description": "Common VPC for whole deployment",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "ApplicationSubnets": {
+    "applicationSubnets": {
       "Description": "Application Subnet IDs",
       "Type": "List<AWS::EC2::Subnet::Id>"
     },
-    "AppSecurityGroup": {
+    "appSecurityGroup": {
       "Description": "Pre-existing security group for App",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
-    "AppInternalElasticLoadBalancer": {
+    "appInternalElasticLoadBalancer": {
       "Description": "Internal ELB Name for App",
       "Type": "String"
     },
-    "InstanceType": {
+    "instanceType": {
       "AllowedValues": [
         "t1.micro",
         "m3.medium",
@@ -33,11 +33,11 @@
       "Description": "App EC2 instance type",
       "Type": "String"
     },
-    "KeyName": {
+    "sshKey": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "SSHLocation" : {
+    "restrictedSrcAddress" : {
       "Description" : " The IP address range that can be used to SSH to the EC2 instances",
       "Type": "String",
       "MinLength": "9",
@@ -48,7 +48,7 @@
     }
   },
   "Mappings": {
-    "ImageRegionMap": {
+    "imageRegionMap": {
       "ap-northeast-1": {
         "AMI": "ami-5b82503a"
       }, 
@@ -76,12 +76,12 @@
     }
   },
   "Resources": {
-    "AppLaunchConfig": {
+    "appLaunchConfig": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "ImageId": {
           "Fn::FindInMap": [
-            "ImageRegionMap",
+            "imageRegionMap",
             {
               "Ref": "AWS::Region"
             },
@@ -89,16 +89,15 @@
           ]
         },
         "InstanceType": {
-          "Ref": "InstanceType"
+          "Ref": "instanceType"
         },
         "AssociatePublicIpAddress": true,
-        "InstanceType": "t1.micro",
         "KeyName": {
-          "Ref": "KeyName"
+          "Ref": "sshKey"
         },
         "SecurityGroups": [
           {
-            "Ref": "AppSecurityGroup"
+            "Ref": "appSecurityGroup"
           }
         ],
         "UserData": {
@@ -115,17 +114,17 @@
         }
       }
     },
-    "AppAutoscaleGroup": {
+    "appAutoscaleGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
         "LoadBalancerNames": [
           {
-            "Ref": "AppInternalElasticLoadBalancer"
+            "Ref": "appInternalElasticLoadBalancer"
           }
         ],
         "Tags": [
           {
-            "Key": "Application",
+            "Key": "application",
             "Value": {
               "Ref": "AWS::StackId"
             },
@@ -137,11 +136,11 @@
             "PropagateAtLaunch": "true"
           }
         ],
-        "VPCZoneIdentifier": { "Ref": "ApplicationSubnets" },
+        "VPCZoneIdentifier": { "Ref": "applicationSubnets" },
         "Cooldown": "600",
         "HealthCheckGracePeriod": 120,
         "LaunchConfigurationName": {
-          "Ref": "AppLaunchConfig"
+          "Ref": "appLaunchConfig"
         },
         "MaxSize": "2",
         "MinSize": "1",
@@ -154,9 +153,9 @@
     }
   },
   "Outputs": {
-    "AppAutoscaleGroupName": {
+    "appAutoscaleGroupName": {
       "Value": {
-        "Ref": "AppAutoscaleGroup"
+        "Ref": "appAutoscaleGroup"
       }
     }
   }
