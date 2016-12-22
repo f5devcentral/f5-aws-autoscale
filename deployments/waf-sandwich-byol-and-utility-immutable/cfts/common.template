@@ -83,7 +83,7 @@
         }
       }
     },
-    "aZ1ExternalSubnet" : {
+    "az1ExternalSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "vpc" },
@@ -98,7 +98,7 @@
         ]
       }
     },
-    "aZ2ExternalSubnet" : {
+    "az2ExternalSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "vpc" },
@@ -113,7 +113,7 @@
         ]
       }
     },
-    "aZ1ApplicationSubnet" : {
+    "az1ApplicationSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "vpc" },
@@ -128,7 +128,7 @@
         ]
       }
     },
-    "aZ2ApplicationSubnet" : {
+    "az2ApplicationSubnet" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "vpc" },
@@ -196,31 +196,31 @@
         }
       }
     },
-    "aZ1ExternalSubnetRouteTableAssociation" : {
+    "az1ExternalSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "aZ1ExternalSubnet" },
+        "SubnetId" : { "Ref" : "az1ExternalSubnet" },
         "RouteTableId" : { "Ref" : "externalRouteTable" }
       }
     },
-    "aZ2ExternalSubnetRouteTableAssociation" : {
+    "az2ExternalSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "aZ2ExternalSubnet" },
+        "SubnetId" : { "Ref" : "az2ExternalSubnet" },
         "RouteTableId" : { "Ref" : "externalRouteTable" }
       }
     },
-    "aZ1ApplicationSubnetRouteTableAssociation" : {
+    "az1ApplicationSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "aZ1ApplicationSubnet" },
+        "SubnetId" : { "Ref" : "az1ApplicationSubnet" },
         "RouteTableId" : { "Ref" : "applicationRouteTable" }
       }
     },
-    "aZ2ApplicationSubnetRouteTableAssociation" : {
+    "az2ApplicationSubnetRouteTableAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "aZ2ApplicationSubnet" },
+        "SubnetId" : { "Ref" : "az2ApplicationSubnet" },
         "RouteTableId" : { "Ref" : "applicationRouteTable" }
       }
     },
@@ -341,8 +341,8 @@
           "UnhealthyThreshold": "10"
         },
         "Subnets" : [ 
-            { "Ref": "aZ1ExternalSubnet" },
-            { "Ref": "aZ2ExternalSubnet" }
+            { "Ref": "az1ExternalSubnet" },
+            { "Ref": "az2ExternalSubnet" }
         ],
         "CrossZone" : true,
         "Listeners" : [ {
@@ -403,8 +403,8 @@
           "UnhealthyThreshold": "10"
         },
         "Subnets" : [ 
-            { "Ref": "aZ1ApplicationSubnet" },
-            { "Ref": "aZ2ApplicationSubnet" }
+            { "Ref": "az1ApplicationSubnet" },
+            { "Ref": "az2ApplicationSubnet" }
         ],
         "Listeners" : [ {
             "LoadBalancerPort" : "80",
@@ -442,7 +442,7 @@
     "availabilityZone1": {
       "Value": {
         "Fn::GetAtt": [
-          "aZ1ApplicationSubnet",
+          "az1ApplicationSubnet",
           "AvailabilityZone"
         ]
       }
@@ -450,7 +450,7 @@
     "availabilityZone2": {
       "Value": {
         "Fn::GetAtt": [
-          "aZ2ApplicationSubnet",
+          "az2ApplicationSubnet",
           "AvailabilityZone"
         ]
       }
@@ -460,18 +460,18 @@
       "Value":  { "Fn::Join": [
           ",",
           [
-            { "Ref": "aZ1ExternalSubnet" },
-            { "Ref": "aZ2ExternalSubnet" }
+            { "Ref": "az1ExternalSubnet" },
+            { "Ref": "az2ExternalSubnet" }
           ]
         ]
       }
     },
-    "aZ1ExternalSubnet": {
-      "Value": { "Ref": "aZ1ExternalSubnet" },
+    "az1ExternalSubnet": {
+      "Value": { "Ref": "az1ExternalSubnet" },
       "Description": "AZ1 Public or External Subnet ID"
     },
-    "aZ2ExternalSubnet": {
-      "Value": { "Ref": "aZ2ExternalSubnet" },
+    "az2ExternalSubnet": {
+      "Value": { "Ref": "az2ExternalSubnet" },
       "Description": "AZ2 Public or External Subnet ID"
     },
     "applicationSubnets": {
@@ -479,18 +479,18 @@
       "Value":  { "Fn::Join": [
           ",",
           [
-            { "Ref": "aZ1ApplicationSubnet" },
-            { "Ref": "aZ2ApplicationSubnet" }
+            { "Ref": "az1ApplicationSubnet" },
+            { "Ref": "az2ApplicationSubnet" }
           ]
         ]
       }
     },
-    "aZ1ApplicationSubnet": {
-      "Value": { "Ref": "aZ1ApplicationSubnet" },
+    "az1ApplicationSubnet": {
+      "Value": { "Ref": "az1ApplicationSubnet" },
       "Description": "AZ1 Application Subnet ID"
     },
-    "aZ2ApplicationSubnet": {
-      "Value": { "Ref": "aZ2ApplicationSubnet" },
+    "az2ApplicationSubnet": {
+      "Value": { "Ref": "az2ApplicationSubnet" },
       "Description": "AZ2 Application Subnet ID"
     },
     "bigipSecurityGroup": {

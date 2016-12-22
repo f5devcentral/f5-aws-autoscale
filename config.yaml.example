@@ -2,6 +2,9 @@
 # Rename this file to config.yaml and update the variables. 
 # config.yaml is not tracked in git.
 
+# NOTE: NOT all input parameters used in the templates are listed below. In some cases, we just rely on the default variables in the templates. However, you would like to change the default values, simply add any of the parameters you want below. Simply add the exact name of the parameter it below and deploy_stacks script will add it the stacks. 
+
+
 # REQUIRED
 # aws/ec2 region where you want to deploy
 # ex. region: us-east-1
@@ -27,6 +30,7 @@ sshKey: <ec2 ssh key pair>
 
 # REQUIRED
 # your access credentials
+# Only required in deployments/templates which don't leverage IAM roles yet
 # ex. iamAccessKey: A....Q
 # ex. iamSecretKey: Os....ASJD22
 iamAccessKey: <aws access key>

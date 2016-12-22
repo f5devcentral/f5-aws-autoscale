@@ -19,7 +19,7 @@
           "Parameters": [
             "vpc",
             "availabilityZone1",
-            "aZ1ExternalSubnet",
+            "az1ExternalSubnet",
             "bigipSecurityGroup"
           ]
         },
@@ -71,7 +71,7 @@
         "availabilityZone1": {
           "default": "Availability Zone"
         },
-        "aZ1ExternalSubnet": {
+        "az1ExternalSubnet": {
           "default": "Subnet Id"
         },
         "bigipSecurityGroup": {
@@ -125,7 +125,7 @@
       "Description": "Availability zone in which BIG-IP is being deployed",
       "Type": "AWS::EC2::AvailabilityZone::Name"
     },
-    "aZ1ExternalSubnet": {
+    "az1ExternalSubnet": {
       "Description": "AZ1 Public or External Subnet ID",
       "Type": "AWS::EC2::Subnet::Id"
     },
@@ -538,7 +538,7 @@
               }
             ],
             "SubnetId": {
-              "Ref": "aZ1ExternalSubnet"
+              "Ref": "az1ExternalSubnet"
             }
           }
         ],

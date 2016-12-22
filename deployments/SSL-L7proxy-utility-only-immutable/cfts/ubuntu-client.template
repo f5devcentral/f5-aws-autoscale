@@ -6,7 +6,7 @@
       "Description": "Common VPC for whole deployment",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "aZ1ExternalSubnet": {
+    "az1ExternalSubnet": {
       "Description": "Common subnet for whole deployment",
       "Type": "AWS::EC2::Subnet::Id"
     },
@@ -130,7 +130,7 @@
               }
             ],
             "SubnetId": {
-              "Ref": "aZ1ExternalSubnet"
+              "Ref": "az1ExternalSubnet"
             }
           }
         ],
