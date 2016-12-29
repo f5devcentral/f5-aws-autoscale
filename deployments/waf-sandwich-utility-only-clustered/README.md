@@ -72,11 +72,11 @@ You can use or change the default parameter values, which are defined in the AWS
 | subnets | x | Public or External Subnet IDs of above Availability Zones |
 | bigipSecurityGroup | x | Existing Security Group for BIG-IPs |
 | bigipElasticLoadBalancer | x | Elastic Load Balancer group for BIG-IPs, e.g. AcmeBigipELB |
-| keyName | x | Existing EC2 KeyPair to enable SSH access to the BIG-IP instance |
+| sshKey | x | Existing EC2 KeyPair to enable SSH access to the BIG-IP instance |
 | restrictedSrcAddress | x | IP address range that can SSH to the BIG-IP instances (Default 0.0.0.0/0) |
 | instanceType | x | BIG-IP Instance Type (Default m3.2xlarge) |
-| performanceType | x | BIG-IP Performance Type (Default Best) |
 | throughput | x | BIG-IP Throughput (Default 1000Mbps) |
+| adminUsername | x | BIG-IP Admin Username (Default admin). Note that the user name can contain only alphanumeric characters, periods ( . ), underscores ( _ ), or hyphens ( - ). Note also that the user name cannot be any of the following: adm, apache, bin, daemon, guest, lp, mail, manager, mysql, named, nobody, ntp, operator, partition, password, pcap, postfix, radvd, root, rpc, rpm, sshd, syscheck, tomcat, uucp, or vcsa. |
 | adminPassword | x | BIG-IP Admin Password |
 | managementGuiPort | x | Port of BIG-IP management GUI (Default 8443) |
 | timezone | x | Olson timezone string from /usr/share/zoneinfo (Default UTC) |
