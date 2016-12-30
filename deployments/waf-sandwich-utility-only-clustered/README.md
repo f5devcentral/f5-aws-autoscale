@@ -157,6 +157,10 @@ Example minimum **autoscale-bigip-parameters.json** using default values for unl
 		"ParameterValue":"0.0.0.0/0"
 	},
 	{
+		"ParameterKey":"adminUsername",
+		"ParameterValue":"mybigipAdmin"
+	},
+	{
 		"ParameterKey":"adminPassword",
 		"ParameterValue":"strongPassword"
 	},
