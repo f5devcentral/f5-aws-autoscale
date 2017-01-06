@@ -30,13 +30,11 @@ The template performs all of the BIG-IP VE configuration and synchronization whe
 1) Access to Best Big-IP images in the Amazon region within which you are working.<br>
 - Make sure that you have accepted the EULA for all Images in the AWS marketplace.<br>
 
-2) Upload SSL certificate to AWS
+2) The provided solution requires a pre-configured ElasticLoadbalancer that performs SSL offload for the BIG-IP WAF autoscaled tier. 
 
-This certificate will be used to terminate SSL on the ELB
+If using reference templates that create ELB (common.template), you must first upload upload SSL certificate to AWS for use in the example ELB. 
 
-http://docs.aws.amazon.com/cli/latest/reference/iam/upload-server-certificate.html
-
-For example: a sample certificate has been included in the /bigip_files/ssl directory:
+For testing purposes, we have included a sample SSL certificate in the /bigip_files/ssl directory:
 
 ```
 From top of repository:
@@ -55,11 +53,81 @@ From top of repository:
 }
 ```
 
-Note the "Arn". You will use this as input to the CFT or configuration file (see below)
-Disclaimer: This is a self signed certificate so will cause the browser to report an error.
+Disclaimer: This is a self signed certificate so will cause a browser/test client to report an error.
+
+For more information on uploading a certificate, please see: 
+http://docs.aws.amazon.com/cli/latest/reference/iam/upload-server-certificate.html
+
+Note the "Arn". You will use this as input parameter to the common.template or if using the deploy_stacks.py script, the config.yaml configuration file.
 
 
-3) Deploy the CloudFormation template autoscale-bigip.template from the cft directory to create a stack in AWS CloudFormation either using the AWS Console, AWS CLI, or example python script mentioned in main README of repository.
+ex. of ELB configuration used in CFT.
+
+```
+    "bigipElasticLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "DependsOn": "internetGatewayAttachment",
+      "Properties": {
+        "LoadBalancerName": {
+          "Fn::Join": [
+            "",
+            [ 
+              { "Ref" : "deploymentName" },
+              "-BigipElb"
+            ]
+          ]
+        },
+        "HealthCheck": {
+          "HealthyThreshold": "2",
+          "Interval": "10",
+          "Target": "HTTP:80/",
+          "Timeout": "5",
+          "UnhealthyThreshold": "10"
+        },
+        "subnets" : [ 
+            { "Ref": "az1ExternalSubnet" },
+            { "Ref": "az2ExternalSubnet" }
+        ],
+        "CrossZone" : true,
+        "Listeners" : [ {
+            "LoadBalancerPort" : "443",
+            "InstancePort" : "80",
+            "Protocol" : "HTTPS",
+            "InstanceProtocol" : "HTTP",
+            "SSLCertificateId" : { "Ref" : "certificateId" },
+            "PolicyNames" : [
+                "ELBSecurityPolicy-2016-08",
+                "MyAppCookieStickinessPolicy"
+            ]
+        } ],
+        "Policies" : [
+            {
+                "PolicyName" : "MyAppCookieStickinessPolicy",
+                "PolicyType" : "AppCookieStickinessPolicyType",
+                "Attributes" : [
+                    { "Name" : "CookieName", "Value" : "MyCookie"}
+                ]
+            }
+        ],
+        "SecurityGroups": [
+          {
+            "Ref": "bigipSecurityGroup"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          }
+        ]
+      }
+    },
+
+```
+
+4) Deploy the CloudFormation template autoscale-bigip.template from the cft directory to create a stack in AWS CloudFormation either using the AWS Console, AWS CLI, or example python script mentioned in main README of repository.
 
 You can use or change the default parameter values, which are defined in the AWS CloudFormation template:
 
