@@ -170,11 +170,11 @@ To use this script:
 
 1) Clone or download this repoistory to the host running this python script and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
 
-  - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-existing-vpc.template">
+  - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-existing-vpc.template">
     <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
-  - automation-host-cft-w-new-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-new-vpc&templateURL=https://s3.amazonaws.com/f5-cft/QA/automation-host-cft-w-new-vpc.template">
+  - automation-host-cft-w-new-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-new-vpc&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-new-vpc.template">
   <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
@@ -185,16 +185,25 @@ After launch, go to the output tab of the cloudformation template, obtain the pu
 ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X 
 ```
 
-and type "aws configure" to enter your AWS credentials.  
+and type "aws configure" to enter your AWS credentials. That will populate ~/.aws/credentials.
+
+Disclaimer: The host needs a few minutes to build. When complete, your login should have the virtualenv (venv) setup and prompt should look like:
+
+```
+(venv) ubuntu@ip-10-0-0-115:~$  
+```
+
+Otherwise, wait a little bit longer and re-login.
 
 
 2) Find config.yaml.example located in the top directory of the repository, copy this to a new file named "config.yaml" ( which is excluded in .gitignore to avoid publishing credentials ).   
 
 ```
+cd f5-aws-autoscale
 cp config.yaml.example config.yaml
 ```
 
-In this config.yaml file, edit the variables for your scenario. 
+In this config.yaml file, use the editor of your choice to configure the variables for your scenario. 
 
 If you didn't deploy the optional automation host above, the last flag in the script 'deploy_jmeter_host' should be given a value of 'true' if you wish to test scale out using JMeter as documented below. 
 

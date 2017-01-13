@@ -137,9 +137,7 @@
                   "# git checkout master",
                   "# install the latest python module requirements",
                   "pip install -r requirements.txt",
-                  "cd ../",
-            		  "chown -R ubuntu.ubuntu /home/ubuntu/*",
-            		  "chown -R ubuntu.ubuntu /home/ubuntu/.*"
+            		  "chown -R ubuntu.ubuntu /home/ubuntu/"
                 ]]
                 }
            },
