@@ -225,7 +225,7 @@
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
-              "",
+              "\n",
               [
                   "#!/bin/bash",
                   "#cloud-init is run as run as root so need to change dirs/permissions/etc",
@@ -249,9 +249,7 @@
                   "# git checkout master",
                   "# install the latest python module requirements",
                   "pip install -r requirements.txt",
-                  "cd ../",
-                  "chown -R ubuntu.ubuntu /home/ubuntu/*",
-                  "chown -R ubuntu.ubuntu /home/ubuntu/.*"
+                  "chown -R ubuntu.ubuntu /home/ubuntu/"
               ]
             ]
           }
