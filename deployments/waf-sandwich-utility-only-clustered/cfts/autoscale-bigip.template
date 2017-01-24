@@ -650,7 +650,7 @@
                 "group": "root"
               },                          
               "/config/cloud/f5-cloud-libs.tar.gz":{
-                "source": "https://api.github.com/repos/F5Networks/f5-cloud-libs/tarball/release-2.0.0",
+                "source": "https://api.github.com/repos/F5Networks/f5-cloud-libs/tarball/develop",
                 "mode": "000644",
                 "owner": "root",
                 "group": "root"
