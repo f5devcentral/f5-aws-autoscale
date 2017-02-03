@@ -749,7 +749,7 @@
                       "   tmsh modify ltm policy app-ltm-policy rules add { associate-asm-policy { actions replace-all-with { 0 { asm request enable policy /Common/linux-${POLICY_LEVEL} } } } }\n",
                       "   tmsh create sys application service ${APP_NAME} { device-group autoscale-group template f5.http.v1.2.0rc4 tables add { pool__members { column-names { addr port connection_limit } rows {{ row { ${APP_NAME} ${POOL_MEMBER_PORT} 0 }}}}} variables add { asm__use_asm { value app-ltm-policy } pool__addr { value 0.0.0.0 } pool__mask { value 0.0.0.0 } pool__port { value ${VS_PORT} } monitor__http_version { value http10 } }}\n",
                       "   f5-rest-node /config/cloud/aws/node_modules/f5-cloud-libs/scripts/autoscale.js --no-console --cloud aws --provider-options s3Bucket:", {"Ref": "S3Bucket"}, ",mgmtPort:", { "Ref": "managementGuiPort" },
-                      "      --host localhost --port ", { "Ref": "managementGuiPort" }," --user admin --password ${ADMIN_PASSWORD} -c unblock-sync\n",
+                      "      --host localhost --port ", { "Ref": "managementGuiPort" }," --user ", { "Ref": "adminUsername" }, " --password ${ADMIN_PASSWORD} -c unblock-sync\n",
                       "   tmsh save /sys config\n",
                       "fi\n",
                       "date\n",
