@@ -1,0 +1,248 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Creates an Amazon EC2 instance running the F5 DEMO AMI.  The AMI is chosen based on the region in which the stack is run. This example creates an EC2 security group for the instance to give you SSH access. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters" : {
+    "sshKey": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+    "vpc": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Default" : "vpc-56f85232",
+      "ConstraintDescription": "Must be an existing VPC within working region."
+    },
+    "subnet": {
+      "Description": "SubnetID of existing subnet for Automation Host",
+      "Type": "AWS::EC2::Subnet::Id",
+      "Default" : "subnet-fd0ee18b",
+      "ConstraintDescription": "Must be an existing subnet"
+    },
+    "instanceType" : {
+      "Description" : "Automation Host EC2 instance type",
+      "Type" : "String",
+      "Default" : "t1.micro",
+      "AllowedValues": [
+        "t1.micro",
+        "m3.medium",
+        "m3.xlarge",
+        "m2.xlarge",
+        "m3.2xlarge",
+        "c3.large",
+        "c3.xlarge"
+      ],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "restrictedSrcAddress" : {
+      "Description" : "The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+   }
+  },
+  "Mappings" : {
+    "AWSRegionArch2AMI": {
+        "ap-northeast-1": {
+            "AMI": "ami-5b82503a"
+        },
+        "ap-southeast-1": {
+            "AMI": "ami-2e67c24d"
+        },
+        "ap-southeast-2": {
+            "AMI": "ami-3af5c559"
+        },
+        "eu-central-1": {
+            "AMI": "ami-f8768b97"
+        },
+        "eu-west-1": {
+            "AMI": "ami-9c5f25ef"
+        },
+        "sa-east-1": {
+            "AMI": "ami-6a52c106"
+        },
+        "us-east-1": {
+            "AMI": "ami-93fa8284"
+        },
+        "us-west-1": {
+            "AMI": "ami-5f1b553f"
+        },
+        "us-west-2": {
+            "AMI": "ami-c1e13da1"
+        }
+    }
+  },
+  "Resources" : {
+     "instanceSecurityGroup" : {
+       "Type" : "AWS::EC2::SecurityGroup",
+       "Properties" : {
+          "GroupDescription" : "Enable SSH access via port 22",
+          "VpcId": { "Ref": "vpc" },
+          "SecurityGroupIngress" : [ {
+             "IpProtocol" : "tcp",
+             "FromPort" : "22",
+             "ToPort" : "22",
+             "CidrIp" : { "Ref" : "restrictedSrcAddress"}
+           } ],
+           "Tags": [
+                     {
+                        "Key": "Application",
+                         "Value": {
+                             "Ref": "AWS::StackName"
+                         }
+                      }
+           ]
+       }
+     },
+     "AutomationHostAccessRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [
+                    "ec2.amazonaws.com"
+                  ]
+                },
+                "Action": [
+                  "sts:AssumeRole"
+                ]
+              }
+            ]
+          },
+          "Path": "/",
+          "Policies": [
+            {
+              "PolicyName": "AutomationHostAcccessPolicy",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Action": "ec2:*",
+                    "Effect": "Allow",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "elasticloadbalancing:*",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "cloudwatch:*",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "autoscaling:*",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "cloudformation:*",
+                    "Resource": "*"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "AutomationHostInstanceProfile": {
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+          "Path": "/",
+          "Roles": [
+            {
+              "Ref": "AutomationHostAccessRole"
+            }
+          ]
+        }
+      },
+     "EC2Instance" : {
+        "Type" : "AWS::EC2::Instance",
+        "Properties" : {
+           "InstanceType" : { "Ref" : "instanceType" },
+           "KeyName" : { "Ref" : "sshKey" },
+           "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" }, "AMI" ] },
+           "NetworkInterfaces" : [{
+              "GroupSet"                 : [{ "Ref" : "instanceSecurityGroup" }],
+              "AssociatePublicIpAddress" : "true",
+              "DeviceIndex"              : "0",
+              "DeleteOnTermination"      : "true",
+              "SubnetId"                 : { "Ref" : "subnet" }
+           }],
+           "UserData": {
+                "Fn::Base64": {
+                       "Fn::Join": [ "\n",
+                [
+                  "#!/bin/bash",
+                  "#cloud-init is run as run as root so need to change dirs/permissions/etc",
+		  "cd /home/ubuntu",
+                  "apt-get update",
+                  "apt-get install -y jmeter",
+                  "easy_install pip",
+                  "pip install virtualenv",
+                  "virtualenv venv",
+                  "#setup the bash file for first login",
+                  "if ! egrep activate /home/ubuntu/.bash_profile ; then echo 'source venv/bin/activate' >> /home/ubuntu/.bash_profile; fi",
+                  "# make sure the virtual environment is active",
+                  "source /home/ubuntu/venv/bin/activate",
+                  "# clone the latest code",
+                  "pip install awscli",
+                  "git clone https://github.com/f5devcentral/f5-aws-autoscale.git",
+                  "# change into the directory",
+                  "cd f5-aws-autoscale",
+                  "# check out the desired branch",
+                  "git fetch",
+                  "# git checkout master",
+                  "# install the latest python module requirements",
+                  "pip install -r requirements.txt",
+            		  "chown -R ubuntu.ubuntu /home/ubuntu/"
+                ]]
+                }
+           },
+           "IamInstanceProfile": {
+             "Ref": "AutomationHostInstanceProfile"
+           },
+           "Tags": [
+                     {
+                        "Key": "Name",
+                         "Value": {
+                             "Ref": "AWS::StackName"
+                         }
+                     }
+           ]
+        } 
+     }
+  },
+  "Outputs" : {
+    "instanceId" : {
+      "Description" : "InstanceId of the newly created EC2 instance",
+      "Value" : { "Ref" : "EC2Instance" }
+    },
+    "availabilityZone" : {
+      "Description" : "Availability Zone of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
+    },
+    "privateIP" : {
+      "Description" : "Private IP address of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PrivateIp" ] }
+    },
+    "publicDNS" : {
+      "Description" : "Public DNSName of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
+    },
+    "publicIP" : {
+      "Description" : "Public IP address of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
+    }
+  }
+}

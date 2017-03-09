@@ -168,15 +168,40 @@ This will be the easiest and least error prone method by far. The script will la
 
 To use this script:
 
-1) Clone or download this repoistory to the host running this python script and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
+1) Clone or download this repoistory to a secure host running this python script and confirm the prerequisite libraries mentioned above (boto3 and pyyaml) are installed.  
+
+Note: If you have never used boto before, type "aws configure" to enter your AWS credentials. That will populate ~/.aws/credentials.
+
+If you don't have access to a host with with these libraries, as a further convenience, we have also included cloud formation templates in this directory which launch an ubuntu host that downloads all the necessary libraries, clones this repository, etc. 
+
+Requirements: This automation host requires sufficient admin privledges to provision the AWS resources mentioned in this deployment. AWS does not recommend using AWS Access/Secret Keys on instances in AWS and using IAM roles instead.
+
+With IAM role:
+
+These templates also create and apply an IAM Role ( based on the AWS example "AmazonEC2FullAccess" policy ) to give the automation host the necessary privledges. 
+
+  - automation-host-cft-w-existing-vpc-w-IAM-role.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc-w-IAM-role&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-existing-vpc-w-IAM-role.template">
+    <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
+  - automation-host-cft-w-new-vpc-w-IAM-role.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-new-vpc-w-IAM-role&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-new-vpc-w-IAM-role.template">
+  <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
+</a>
+
+
+Without IAM role:
+
+If you would like create a more restricted custom IAM role (recommended), you can launch a template below and attach the IAM role to the instance post deployment (ex. Instance -> Instance Settings -> Attach/Replace IAM role).
 
   - automation-host-cft-w-existing-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-existing-vpc&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-existing-vpc.template">
     <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
 
+
   - automation-host-cft-w-new-vpc.template<br><a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=automation-host-cft-w-new-vpc&templateURL=https://s3.amazonaws.com/f5-downloads/dev/automation-host-cft-w-new-vpc.template">
   <img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/>
 </a>
+
 
 
 After launch, go to the output tab of the cloudformation template, obtain the publicIP or publicDNS, ssh to the host:  
@@ -185,7 +210,6 @@ After launch, go to the output tab of the cloudformation template, obtain the pu
 ssh -i ~/.ssh/YOUR-AWS-KEY.pem ubuntu@X.X.X.X 
 ```
 
-and type "aws configure" to enter your AWS credentials. That will populate ~/.aws/credentials.
 
 Disclaimer: The host needs a few minutes to build. When complete, your login should have the virtualenv (venv) setup and prompt should look like:
 
@@ -217,9 +241,7 @@ $python deploy_stacks.py -d SSL-L7proxy-sandwich-utility-only-immutable
 
 ```
 
-Use the output of the script and/or go the output tab of each cloudformation template to get login or additional information about the deployment.
-
-
+Use the output of the script and/or go the "Outputs" tab of each cloudformation template (after status = "CREATE_COMPLETE") to get login or additional information about the deployment.
 
 
 

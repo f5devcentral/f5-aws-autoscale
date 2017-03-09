@@ -32,9 +32,10 @@ adminPassword: <admin_password>
 # ex. sshKey:  my-key-pair
 sshKey: <ec2 ssh key pair>
 
-# REQUIRED
-# your access credentials
+# Access credentials for BIG-IP to interact with AWS services
+# AWS does not recommend using AWS Access / Secret Keys on instances in AWS
 # Only required in deployments/templates which don't leverage IAM roles yet
+# Keeping Setting for testing of legacy deployments (pre v13). 
 # ex. iamAccessKey: A....Q
 # ex. iamSecretKey: Os....ASJD22
 iamAccessKey: <aws access key>

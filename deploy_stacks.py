@@ -17,7 +17,7 @@ from optparse import OptionParser
 import boto3
 
 
-STACK_WAIT_TIMEOUT = 600
+STACK_WAIT_TIMEOUT = 1800
 
 class DeploymentManager:
     """Class to simplify management of a deployment composed of multiple CFTs"""
