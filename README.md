@@ -35,17 +35,17 @@ Ex.
 
 Example virtual service has a simple URI routing [policy](bigip_files/example-uri-routing-policy.txt).  Deploys Big-IP Local Traffic Manager (LTM) images (License = Good).
 
-* [**SSL-L7proxy-utility-only-immutable**](SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
-* [**SSL-L7proxy-sandwich-utility-only-immutable**](SSL-L7proxy-sandwich-utility-only-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
-* [**SSL-L7proxy-sandwich-byol-and-utility-immutable**](SSL-L7proxy-sandwich-byol-and-utility-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
+* [**SSL-L7proxy-utility-only-immutable**](deployments/SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
+* [**SSL-L7proxy-sandwich-utility-only-immutable**](deployments/SSL-L7proxy-sandwich-utility-only-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
+* [**SSL-L7proxy-sandwich-byol-and-utility-immutable**](deployments/SSL-L7proxy-sandwich-byol-and-utility-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
 
 **Web Application Firewall (WAF)** 
 
 Example virtual service has a simple Web Application Firewall policy. Deploys Big-IP Application Security Manager (ASM) images (License = Best). 
 
-* [**SSL-waf-utility-only-immutable**](SSL-waf-utility-only-immutable) *(uses DNS LB)*
-* [**SSL-waf-sandwich-utility-only-immutable**](SSL-waf-sandwich-utility-only-immutable)  *(uses ELB)*
-* [**SSL-waf-sandwich-byol-and-utility-immutable**](SSL-waf-sandwich-byol-and-utility-immutable)  *(uses ELB)*
+* [**SSL-waf-utility-only-immutable**](deployments/SSL-waf-utility-only-immutable) *(uses DNS LB)*
+* [**SSL-waf-sandwich-utility-only-immutable**](deployments/SSL-waf-sandwich-utility-only-immutable)  *(uses ELB)*
+* [**SSL-waf-sandwich-byol-and-utility-immutable**](deployments/SSL-waf-sandwich-byol-and-utility-immutable)  *(uses ELB)*
 
 **Deployment Name Terms:**
 
