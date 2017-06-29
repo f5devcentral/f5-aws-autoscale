@@ -1,7 +1,9 @@
 # AUTOSCALE BIGIP
 
+UPDATE: For official templates, please go to https://github.com/F5Networks/f5-aws-cloudformation repo: 
+https://github.com/F5Networks/f5-aws-cloudformation/tree/master/supported/solutions/autoscale
 
-This project contains CloudFormation templates which provide an example of how to deploy autoscale instances of BIG-IP in AWS. This project specifically demonstrates autoscaling the Big-IP tier where, as traffic increases, the number of BIG-IPs will increase. 
+This project contains prototypes of CloudFormation templates which provide an example of how to deploy autoscale instances of BIG-IP in AWS. This project specifically demonstrates autoscaling the Big-IP tier where, as traffic increases, the number of BIG-IPs will increase. 
 
 
 ![Deployment Diagram](docs/pics/autoscale-diagram-small.jpg)
@@ -33,7 +35,7 @@ Ex.
 
 Example virtual service has a simple URI routing [policy](bigip_files/example-uri-routing-policy.txt).  Deploys Big-IP Local Traffic Manager (LTM) images (License = Good).
 
-* [**SSL-L7proxy-utility-only-immutable**] (deployments/SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
+* [**SSL-L7proxy-utility-only-immutable**] (SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
 * [**SSL-L7proxy-sandwich-utility-only-immutable**](SSL-L7proxy-sandwich-utility-only-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
 * [**SSL-L7proxy-sandwich-byol-and-utility-immutable**](SSL-L7proxy-sandwich-byol-and-utility-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
 
