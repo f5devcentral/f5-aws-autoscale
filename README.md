@@ -35,7 +35,7 @@ Ex.
 
 Example virtual service has a simple URI routing [policy](bigip_files/example-uri-routing-policy.txt).  Deploys Big-IP Local Traffic Manager (LTM) images (License = Good).
 
-* [**SSL-L7proxy-utility-only-immutable**] (SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
+* [**SSL-L7proxy-utility-only-immutable**](SSL-L7proxy-utility-only-immutable)  *(uses DNS LB to distribute traffic to the Big-IPs)*
 * [**SSL-L7proxy-sandwich-utility-only-immutable**](SSL-L7proxy-sandwich-utility-only-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
 * [**SSL-L7proxy-sandwich-byol-and-utility-immutable**](SSL-L7proxy-sandwich-byol-and-utility-immutable)  *(uses ELB to distribute traffic to the Big-IPs)*
 
